@@ -1,44 +1,21 @@
-import os
-import shutil
-import uuid
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 
 from Schemas.user_Schemas import *
-from config import get_db, secret_key, algorithm
+from config import get_db
 from Services.user_Services import *
 from models.userModels import User as DBUser
+from dependencies import get_current_user
+
 
 router = APIRouter(tags=["Authentification"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-def save_image(file: UploadFile, directory: str = "uploads"):
-    try:
-        os.makedirs(directory, exist_ok=True)
-        filename = file.filename
-
-        if not filename or '.' not in filename:
-            raise ValueError("Invalid file name")
-
-        ext = filename.split('.')[-1]
-        unique_name = f"{uuid.uuid4()}.{ext}"
-        path = os.path.join(directory, unique_name)
-
-        with open(path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        return path
-
-    except Exception as e:
-        print("Erreur dans save_image:", e)
-        raise HTTPException(status_code=400, detail="Invalid image upload")
 
 
 # Inscription d'un utilisateur
@@ -115,20 +92,6 @@ async def login(
         print(error.args)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        return username
-    except JWTError:
-        raise credentials_exception
 
 @router.get("/users/me", response_model=UserOut)
 def get_user_me(db: Session = Depends(get_db), current_username: str = Depends(get_current_user)):

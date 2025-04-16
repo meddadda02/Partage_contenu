@@ -1,8 +1,11 @@
+import os
+import shutil
 from typing import Generic, Optional, TypeVar
+import uuid
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import ExpiredSignatureError, JWTError, jwt
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from config import secret_key, algorithm
 
 T = TypeVar("T")
@@ -50,3 +53,23 @@ class JWTRepo():
             raise HTTPException(status_code=401, detail="Invalid token")
         return decoded_token
 
+def save_image(file: UploadFile, directory: str = "uploads"):
+    try:
+        os.makedirs(directory, exist_ok=True)
+        filename = file.filename
+
+        if not filename or '.' not in filename:
+            raise ValueError("Invalid file name")
+
+        ext = filename.split('.')[-1]
+        unique_name = f"{uuid.uuid4()}.{ext}"
+        path = os.path.join(directory, unique_name)
+
+        with open(path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        return path
+
+    except Exception as e:
+        print("Erreur dans save_image:", e)
+        raise HTTPException(status_code=400, detail="Invalid image upload")
