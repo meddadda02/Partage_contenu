@@ -13,3 +13,4 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())
 
     posts = relationship("Post", back_populates="user", cascade="all, delete")
+    comments = relationship("Comment", back_populates="user", cascade="all, delete")
