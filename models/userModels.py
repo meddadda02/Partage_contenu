@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, func
 from config import Base
-
+from sqlalchemy.orm import relationship
 class User(Base):
     __tablename__ = 'users'
 
@@ -12,3 +12,4 @@ class User(Base):
     password_hash = Column(String)
     created_at = Column(DateTime, default=func.now())
 
+    posts = relationship("Post", back_populates="user", cascade="all, delete")
