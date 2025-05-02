@@ -6,9 +6,10 @@ from enum import Enum
 
 # Define the possible types for the post
 class PostTypeEnum(str, Enum):
-    texte = "texte"
+    pdf = "pdf"
     image = "image"
     video = "video"
+    texte="texte"
 
 # Define the Post model
 class Post(Base):
@@ -17,7 +18,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True, index=True)  # Unique post identifier
     title = Column(String, index=True)  # Post title
     content = Column(String, nullable=True)  # Text content of the post (optional, mainly for "texte" posts)
-    type = Column(TYPE(PostTypeEnum), nullable=False)  # Type of the post (text, image, video)
+    type = Column(TYPE(PostTypeEnum), nullable=False, index=True)
     created_at = Column(DateTime, default=func.now())  # Creation date of the post
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # Reference to the user (foreign key)
     file_url = Column(String, nullable=True)  # Path to the associated file (image, video, etc.)
@@ -26,13 +27,4 @@ class Post(Base):
     # Relationship with the user
     user = relationship("User", back_populates="posts")
     comments = relationship("Comment", back_populates="post", cascade="all, delete")
-
-    # Function to retrieve the file URL (for an image or video)
-    def get_file_url(self):
-        return self.file_url
-
-    # Function to check if the post has an associated file (useful to validate if it's an image or video)
-    def has_file(self):
-        return self.file_url is not None
-    
 

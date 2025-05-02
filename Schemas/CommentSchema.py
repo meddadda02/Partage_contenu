@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
+
 
 class CommentCreate(BaseModel):
     content: str
@@ -14,3 +16,11 @@ class CommentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+
+class CommentUpdate(BaseModel):
+    content: Optional[str]  
+
+    class Config:
+        from_attributes = True
+
