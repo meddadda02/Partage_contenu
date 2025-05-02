@@ -25,6 +25,7 @@ class Post(Base):
 
     # Relationship with the user
     user = relationship("User", back_populates="posts")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete")
 
     # Function to retrieve the file URL (for an image or video)
     def get_file_url(self):
@@ -33,3 +34,5 @@ class Post(Base):
     # Function to check if the post has an associated file (useful to validate if it's an image or video)
     def has_file(self):
         return self.file_url is not None
+    
+

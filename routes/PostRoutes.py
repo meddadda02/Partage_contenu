@@ -4,6 +4,7 @@ from config import get_db
 from Schemas.PostSchema import PostCreate, Post
 from Services.PostServices import create_post_svc
 from dependencies import get_current_user
+from Services.PostServices import getPost
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ async def create_post(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: str = Depends(get_current_user),  #le nom d'utilisateur connecte
-):
+ ):
 
     file_extension = file.filename.split(".")[-1].lower()
     allowed_extensions = ["jpg", "jpeg", "png", "gif", "mp4", "avi"]
@@ -40,3 +41,10 @@ async def create_post(
     
     # Appeler la fonction de service avec le username
     return await create_post_svc(db=db, post=post, username=current_user, file_url=file_location)
+
+@router.get("/post/recup")
+async def get_post_by_current_user(
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)  # récupère le username
+):
+    return await getPost(db, current_user)

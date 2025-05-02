@@ -24,3 +24,12 @@ async def create_post_svc(db: Session, post: Post, username: str, file_url: str)
     db.commit()
     db.refresh(db_post)
     return db_post
+
+async def getPost(db: Session, username: str):
+    user = db.query(User).filter(User.username == username).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    posts = db.query(Post).filter(Post.user_id == user.id).all()
+    return posts
