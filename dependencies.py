@@ -3,7 +3,6 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from models.userModels import User
-from config import get_db
 from config import secret_key,algorithm # Adapte à ta configuration
 
 # Déclare la méthode OAuth2 pour l'authentification

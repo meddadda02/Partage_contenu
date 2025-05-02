@@ -8,7 +8,7 @@ from typing import Optional
 class PostCreate(BaseModel):
     title: str
     content: Optional[str] = None
-    type: str  # Peut être texte,image,video
+    type: str  # Peut être texte,image,video,pdf
     location: Optional[str] = None  # Localisation du post (facultatif)
 
 
@@ -24,3 +24,4 @@ class Post(BaseModel):
 
     class Config:
         from_attributes = True  
+        

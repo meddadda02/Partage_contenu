@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from models.PostModels import Post
 from models.userModels import User
 
+
 async def create_post_svc(db: Session, post: Post, username: str, file_url: str):
     # Récupérer l'utilisateur basé sur le username
     user = db.query(User).filter(User.username == username).first()
@@ -25,11 +26,30 @@ async def create_post_svc(db: Session, post: Post, username: str, file_url: str)
     db.refresh(db_post)
     return db_post
 
-async def getPost(db: Session, username: str):
+async def get_posts_by_user_svc(db: Session, username: str):
     user = db.query(User).filter(User.username == username).first()
-
-    if not user:
+    if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-
+    
     posts = db.query(Post).filter(Post.user_id == user.id).all()
     return posts
+
+async def delete_post(db: Session, post_id: int, current_user_id: int):
+    # Recherche le commentaire par son ID
+    post = db.query(Post).filter(Post.id == post_id).first()
+
+    # Si le commentaire n'existe pas
+    if not post:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    # Vérification que l'utilisateur actuel est bien celui qui a créé le post
+    if post.user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this comment")
+
+    # Suppression du post
+    db.delete(post)
+    db.commit()
+
+    return {"detail": "post successfully deleted"}
+
+
