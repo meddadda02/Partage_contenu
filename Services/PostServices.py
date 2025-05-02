@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.PostModels import Post
 from models.userModels import User
+from Schemas.PostSchema import PostCreate
 
 
 async def create_post_svc(db: Session, post: Post, username: str, file_url: str):
@@ -40,11 +41,11 @@ async def delete_post(db: Session, post_id: int, current_user_id: int):
 
     # Si le commentaire n'existe pas
     if not post:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise HTTPException(status_code=404, detail="post not found")
 
     # Vérification que l'utilisateur actuel est bien celui qui a créé le post
     if post.user_id != current_user_id:
-        raise HTTPException(status_code=403, detail="Not authorized to delete this comment")
+        raise HTTPException(status_code=403, detail="Not authorized to delete this post")
 
     # Suppression du post
     db.delete(post)
@@ -53,3 +54,21 @@ async def delete_post(db: Session, post_id: int, current_user_id: int):
     return {"detail": "post successfully deleted"}
 
 
+async def update_post(db: Session, post_id: int, post_data: PostCreate, current_user_id: int, file_url: str = None):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if post.user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this post")
+
+    post.title = post_data.title
+    post.content = post_data.content
+    post.type = post_data.type
+    post.location = post_data.location
+    if file_url:
+        post.file_url = file_url
+
+    db.commit()
+    db.refresh(post)
+    return post
