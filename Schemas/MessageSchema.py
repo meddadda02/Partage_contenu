@@ -11,6 +11,9 @@ class MessageOut(BaseModel):
     receiver_id: int
     content: str
     timestamp: datetime
+    
+class MessageUpdate(BaseModel):
+    content: str
 
     class Config:
         from_orm = True
