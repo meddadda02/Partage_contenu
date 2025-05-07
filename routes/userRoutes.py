@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from fastapi.middleware.cors import CORSMiddleware
 
 from Schemas.user_Schemas import *
 from config import get_db
@@ -15,7 +16,6 @@ from dependencies import get_current_user
 router = APIRouter(tags=["Authentification"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 
 # Inscription d'un utilisateur
@@ -68,27 +68,34 @@ async def login(
     db: Session = Depends(get_db)
 ):
     try:
+        # Vérifier si l'utilisateur existe
         _user = UserRepo.find_by_username(db, DBUser, username)
         if not _user:
             raise HTTPException(status_code=404, detail="User not found")
 
+        # Vérifier le mot de passe
         if not pwd_context.verify(password, _user.password_hash):
             raise HTTPException(status_code=400, detail="Invalid password")
 
+        # Générer un nouveau token JWT
         token = JWTRepo.generate_token({'sub': _user.username})
 
-        # Swagger-friendly response
+        # Sauvegarder le token dans la base de données
+        _user.jwt_token = token  # Mise à jour du champ `jwt_token`
+        db.commit()  # Enregistrer les modifications dans la base de données
+
+        # Retourner le token JWT au frontend
         return {
             "access_token": token,
             "token_type": "bearer"
         }
 
+    except HTTPException as http_error:
+        # Gestion spécifique des exceptions HTTP
+        print(http_error.args)
+        raise http_error
     except Exception as error:
-        print(error.args)
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-
-    except Exception as error:
+        # Gérer les erreurs internes
         print(error.args)
         raise HTTPException(status_code=500, detail="Internal server error")
 
