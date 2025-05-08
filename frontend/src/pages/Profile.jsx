@@ -1,173 +1,262 @@
-import { useState, useEffect } from 'react';
-import { useUserStore } from '../store/userStore';
+import { useState, useEffect } from "react";
 
-export default function Profile() {
-  const [profile, setProfile] = useState(null);
+const Profile = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    bio: '',
-    photo: '',
-    newPassword: '',
+    email: "",
+    bio: "",
+    password: "",
+    photo: null,
   });
-  const [error, setError] = useState('');
-  const { user, setUser } = useUserStore();
 
   useEffect(() => {
-    if (user) {
-      setProfile(user);
-      setFormData({
-        username: user.username,
-        email: user.email,
-        bio: user.bio || '',
-        photo: user.photo || '',
-      });
-    }
-  }, [user]);
+    const token = localStorage.getItem("access_token");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
-    
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value && key !== 'photo') {
-        formDataToSend.append(key, value);
-      }
+    if (!token) {
+      setError("No access token found.");
+      setLoading(false);
+      return;
+    }
+
+    fetch("http://localhost:8000/users/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch user data");
+        return res.json();
+      })
+      .then((data) => {
+        setUser(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load user data.");
+        setLoading(false);
+      });
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value, files, type } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "file" ? files[0] : value,
     });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("access_token");
+
+    const data = new FormData();
+    data.append("email", formData.email);
+    data.append("bio", formData.bio);
+    data.append("New_password", formData.password);
+    if (formData.photo) data.append("photo", formData.photo);
 
     try {
-      const response = await fetch('http://localhost:8000/user/me', {
-        method: 'PUT',
+      const response = await fetch("http://localhost:8000/user/me", {
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: formDataToSend,
+        body: data,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
+      if (!response.ok) throw new Error("Failed to update user");
 
-      const updatedUser = await response.json();
-      setUser(updatedUser);
+      const result = await response.json();
+      setUser(result.user);
       setIsEditing(false);
-    } catch (err) {
-      setError('Failed to update profile');
+    } catch {
+      setError("Failed to update profile.");
     }
   };
 
-  if (!profile) {
-    return (
-      <div className="text-center mt-5">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  const handleDelete = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!window.confirm("Are you sure you want to delete your account?")) return;
+
+    try {
+      const res = await fetch("http://localhost:8000/user/me", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to delete account");
+
+      alert("Account deleted.");
+      window.location.href = "/login";
+    } catch {
+      setError("Failed to delete account.");
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!user) return <div>No user data found.</div>;
+
+  const photoUrl = user.photo || "https://via.placeholder.com/140";
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-8">
-          <div className="card">
-            <div className="card-body">
-              {!isEditing ? (
-                <>
-                  <div className="text-center mb-4">
-                    <img
-                      src={profile.photo || 'https://via.placeholder.com/150'}
-                      alt={profile.username}
-                      className="rounded-circle"
-                      width="150"
-                      height="150"
-                    />
-                    <h2 className="mt-3">{profile.username}</h2>
-                    <p className="text-muted">{profile.email}</p>
-                    {profile.bio && <p>{profile.bio}</p>}
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    Edit Profile
-                  </button>
-                </>
-              ) : (
-                <form onSubmit={handleSubmit}>
-                  {error && <div className="alert alert-danger">{error}</div>}
-                  <div className="mb-3">
-                    <label htmlFor="username" className="form-label">Username</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="username"
-                      value={formData.username}
-                      onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Email</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      id="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="bio" className="form-label">Bio</label>
-                    <textarea
-                      className="form-control"
-                      id="bio"
-                      value={formData.bio}
-                      onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="newPassword" className="form-label">New Password (optional)</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      id="newPassword"
-                      value={formData.newPassword}
-                      onChange={(e) => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="photo" className="form-label">Profile Photo</label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      id="photo"
-                      accept="image/*"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setFormData(prev => ({ ...prev, photo: URL.createObjectURL(e.target.files[0]) }));
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="d-flex gap-2">
-                    <button type="submit" className="btn btn-primary">
-                      Save Changes
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setIsEditing(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
+    <>
+      <style>
+        {`
+          .profile-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+          }
+
+          .profile-img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          .button {
+            padding: 10px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            margin: 10px;
+          }
+
+          .btn-edit {
+            background-color: #0095f6;
+            color: white;
+          }
+
+          .btn-delete {
+            background-color: #e60000;
+            color: white;
+          }
+
+          .btn-save {
+            background-color: #28a745;
+            color: white;
+          }
+
+          .input-field {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            width: 100%;
+          }
+
+          .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+          }
+
+          .error-message {
+            color: red;
+            text-align: center;
+          }
+        `}
+      </style>
+
+      <div className="profile-container">
+        <h1 style={{ textAlign: "center" }}>Your Profile</h1>
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <img
+            src={photoUrl}
+            alt="Profile"
+            className="profile-img"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://via.placeholder.com/140";
+            }}
+          />
+          <p><strong>Username:</strong> {user.username}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Bio:</strong> {user.bio || "No bio set."}</p>
         </div>
+
+        <div style={{ textAlign: "center" }}>
+          <button className="button btn-edit" onClick={() => {
+            setFormData({
+              email: user.email || "",
+              bio: user.bio || "",
+              password: "",
+              photo: null,
+            });
+            setIsEditing(true);
+          }}>
+            Edit Profile
+          </button>
+
+          <button className="button btn-delete" onClick={handleDelete}>
+            Delete Account
+          </button>
+        </div>
+
+        {isEditing && (
+          <form onSubmit={handleUpdate} style={{ marginTop: "20px" }}>
+            <div>
+              <label className="input-label">Email:</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="input-field"
+                required
+              />
+            </div>
+            <div>
+              <label className="input-label">Bio:</label>
+              <input
+                type="text"
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                className="input-field"
+              />
+            </div>
+            <div>
+              <label className="input-label">New Password:</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="input-field"
+              />
+            </div>
+            <div>
+              <label className="input-label">Profile Photo:</label>
+              <input
+                type="file"
+                name="photo"
+                accept="image/*"
+                onChange={handleChange}
+                style={{ marginBottom: "10px" }}
+              />
+            </div>
+            <button type="submit" className="button btn-save">
+              Save Changes
+            </button>
+          </form>
+        )}
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default Profile;

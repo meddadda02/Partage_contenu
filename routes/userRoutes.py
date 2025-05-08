@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from fastapi import Request
 
 from Schemas.user_Schemas import *
 from config import get_db
@@ -101,21 +103,32 @@ async def login(
 
 
 @router.get("/users/me", response_model=UserOut)
-def get_user_me(db: Session = Depends(get_db), current_username: str = Depends(get_current_user)):
+def get_user_me(
+    db: Session = Depends(get_db),
+    current_username: str = Depends(get_current_user),
+    request: Request = None  # 👈 Ajout
+):
     try:
         user = db.query(DBUser).filter(DBUser.username == current_username).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+        
+        # Construire URL publique pour la photo
+        photo_url = (
+            f"{request.base_url}images/{os.path.basename(user.photo)}"
+            if user.photo else None
+        )
+
         return UserOut(
             username=user.username,
             email=user.email,
             bio=user.bio,
-            photo=user.photo
+            photo=photo_url
         )
     except Exception as e:
         print("Error:", e)
         raise HTTPException(status_code=500, detail="Internal server error")
-    
+
     
 @router.delete("/user/me")
 def delete_user_connect(db:Session=Depends(get_db),current_username:str=Depends(get_current_user)):

@@ -9,6 +9,7 @@ import routes.userRoutes as user_route
 import routes.PostRoutes as post_route
 import routes.CommentRoutes as comment_route
 import routes.MessageRoutes as message_route
+from fastapi.staticfiles import StaticFiles
 
 # Créer l'application FastAPI une seule fois
 app = FastAPI()
@@ -35,13 +36,8 @@ app.include_router(comment_route.router)
 app.include_router(message_route.router)
 
 # Ajouter la route OPTIONS pour /login
-@app.options("/login")
-async def options_login():
-    return {
-        "Access-Control-Allow-Origin": "http://localhost:5173",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",  # Autorise les méthodes nécessaires
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"  # Autorise les headers nécessaires
-    }
+
+app.mount("/images", StaticFiles(directory="uploads"), name="images")
 
 
 
