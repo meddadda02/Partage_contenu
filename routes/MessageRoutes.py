@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from Schemas.MessageSchema import MessageCreate, MessageOut, MessageUpdate
 from Services.MessageServices import (
@@ -78,3 +78,29 @@ async def soft_delete_message(
         return {"detail": f"Message {message_id} supprimé de façon douce."}
     else:
         raise HTTPException(status_code=400, detail="Impossible de supprimer ce message.")
+
+@router.get("/users/search/", response_model=list[dict])
+async def search_users(
+    q: str = Query(None),
+    db: Session = Depends(get_db),
+    current_username: str = Depends(get_current_user)
+):
+    if q:
+        users = db.query(User).filter(User.username.ilike(f"%{q}%")).all()
+    else:
+        users = db.query(User).all()
+    # Exclure l'utilisateur courant
+    users = [u for u in users if u.username != current_username]
+    return [{"id": u.id, "username": u.username, "avatar": getattr(u, "avatar", None)} for u in users]
+
+# routes/messages.py
+
+@router.get("/users/", response_model=list[dict])
+async def get_all_users(
+    db: Session = Depends(get_db),
+    current_username: str = Depends(get_current_user)
+):
+    users = db.query(User).all()  # Récupérer tous les utilisateurs
+    # Exclure l'utilisateur actuel
+    users = [u for u in users if u.username != current_username]
+    return [{"id": u.id, "username": u.username, "avatar": getattr(u, "avatar", None)} for u in users]

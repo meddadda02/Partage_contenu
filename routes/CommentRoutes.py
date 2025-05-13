@@ -17,8 +17,19 @@ async def add_comment(
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    return await create_comment(db, content=content, post_id=post_id, user_id=user.id)
+    # Vérifier que le post existe
+    from models.PostModels import Post
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    comment = await create_comment(db, content=content, post_id=post_id, user_id=user.id)
+    comment_user = db.query(User).filter(User.id == comment.user_id).first()
+    return {
+        'id': comment.id,
+        'content': comment.content,
+        'user': {'username': comment_user.username, 'photo': comment_user.photo, 'id': comment_user.id} if comment_user else None,
+        'createdAt': str(comment.created_at) if hasattr(comment, 'created_at') else None
+    }
 
 @router.put("/comments/{comment_id}")
 async def modify_comment(

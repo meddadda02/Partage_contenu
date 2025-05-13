@@ -32,5 +32,12 @@ class UserOut(BaseModel):
 
     class Config:
         from_orm = True
-        
+
+    def model_dump(self, *args, **kwargs):
+        data = super().model_dump(*args, **kwargs)
+        photo = data.get('photo')
+        if photo and not photo.startswith('http'):
+            data['photo'] = f"http://localhost:8000/images/{photo.split('/')[-1]}"
+        return data
+
 
