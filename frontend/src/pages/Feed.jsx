@@ -4,11 +4,18 @@ import PostCard from '../components/PostCard';
 import { useUserStore } from '../store/userStore';
 
 export default function Feed() {
-  const { isAuthenticated, token, user } = useUserStore();
+  const { isAuthenticated, token } = useUserStore();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [newPost, setNewPost] = useState({ title: '', content: '', type: 'texte', location: '', file: null });
+  const [newPost, setNewPost] = useState({
+    title: '',
+    content: '',
+    type: 'texte',
+    location: '',
+    file: null
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,14 +32,11 @@ export default function Feed() {
           },
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts');
-        }
+        if (!response.ok) throw new Error('Failed to fetch posts');
 
         const data = await response.json();
-        const validPosts = data
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setPosts(validPosts);
+        const sortedPosts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setPosts(sortedPosts);
       } catch (err) {
         setError('Failed to load posts');
       } finally {
@@ -46,14 +50,11 @@ export default function Feed() {
   const handleCreatePost = async (e) => {
     e.preventDefault();
     setError('');
+
     const formData = new FormData();
-    formData.append('title', newPost.title);
-    formData.append('content', newPost.content);
-    formData.append('type', newPost.type);
-    formData.append('location', newPost.location);
-    if (newPost.file) {
-      formData.append('file', newPost.file);
-    }
+    Object.entries(newPost).forEach(([key, value]) => {
+      if (value) formData.append(key, value);
+    });
 
     try {
       const response = await fetch('http://localhost:8000/posts/', {
@@ -64,35 +65,31 @@ export default function Feed() {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create post');
-      }
+      if (!response.ok) throw new Error();
 
       const createdPost = await response.json();
-      setPosts(prevPosts => 
-        [createdPost, ...prevPosts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      );
+      setPosts(prev => [createdPost, ...prev].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
       setNewPost({ title: '', content: '', type: 'texte', location: '', file: null });
-    } catch (err) {
+    } catch {
       setError('Failed to create post');
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewPost((prevPost) => ({ ...prevPost, [name]: value }));
+    setNewPost(prev => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e) => {
-    setNewPost((prevPost) => ({ ...prevPost, file: e.target.files[0] }));
+    setNewPost(prev => ({ ...prev, file: e.target.files[0] }));
   };
 
   const handleDeletePost = (postId) => {
-    setPosts((prevPosts) => prevPosts.filter((p) => p.id !== postId));
+    setPosts(prev => prev.filter(p => p.id !== postId));
   };
 
   const handleEditPost = (updatedPost) => {
-    setPosts((prevPosts) => prevPosts.map((p) => p.id === updatedPost.id ? updatedPost : p));
+    setPosts(prev => prev.map(p => (p.id === updatedPost.id ? updatedPost : p)));
   };
 
   if (loading) {
@@ -117,101 +114,102 @@ export default function Feed() {
     <div className="container mt-4">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <div className="card shadow-sm mb-4">
-            <div className="card-body">
-              <form onSubmit={handleCreatePost}>
-                <div className="mb-3">
-                  <textarea
-                    className="form-control border-0"
-                    name="content"
-                    value={newPost.content}
-                    onChange={handleChange}
-                    rows="3"
-                    placeholder="Quoi de neuf ?"
-                    style={{ backgroundColor: '#f0f2f5', borderRadius: '20px', padding: '15px' }}
-                  />
-                </div>
-                <div className="mb-2 d-flex gap-2">
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="title"
-                    value={newPost.title}
-                    onChange={handleChange}
-                    placeholder="Titre"
-                  />
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="location"
-                    value={newPost.location}
-                    onChange={handleChange}
-                    placeholder="Localisation"
-                  />
-                </div>
-                <div className="mb-2">
-                  <select
-                    className="form-select"
-                    name="type"
-                    value={newPost.type}
-                    onChange={handleChange}
-                  >
-                    <option value="texte">Texte</option>
-                    <option value="image">Image</option>
-                    <option value="video">Vidéo</option>
-                    <option value="pdf">PDF</option>
-                  </select>
-                </div>
-                <div className="mb-3">
-                  <input
-                    type="file"
-                    className="form-control"
-                    onChange={handleFileChange}
-                    accept="image/*,video/*,.pdf"
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary w-100 rounded-pill">
-                  Publier
-                </button>
-              </form>
-            </div>
+          {/* Post Creation Form */}
+          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #dbdbdb', padding: '20px 18px 14px 18px', marginBottom: '28px', boxShadow: 'none' }}>
+            <form onSubmit={handleCreatePost}>
+              <div className="mb-2">
+                <textarea
+                  className="form-control border-0"
+                  name="content"
+                  value={newPost.content}
+                  onChange={handleChange}
+                  rows="3"
+                  placeholder="Quoi de neuf ?"
+                  style={{ backgroundColor: '#fafafa', borderRadius: '14px', padding: '14px', fontSize: '15px', resize: 'none', boxShadow: 'none' }}
+                />
+              </div>
+              <div className="mb-2 d-flex gap-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  name="title"
+                  value={newPost.title}
+                  onChange={handleChange}
+                  placeholder="Titre"
+                  style={{ borderRadius: '10px', fontSize: '14px', background: '#fafafa', border: '1px solid #efefef' }}
+                />
+                <input
+                  type="text"
+                  className="form-control"
+                  name="location"
+                  value={newPost.location}
+                  onChange={handleChange}
+                  placeholder="Localisation"
+                  style={{ borderRadius: '10px', fontSize: '14px', background: '#fafafa', border: '1px solid #efefef' }}
+                />
+              </div>
+              <div className="mb-2 d-flex gap-2 align-items-center">
+                <select
+                  className="form-select"
+                  name="type"
+                  value={newPost.type}
+                  onChange={handleChange}
+                  style={{ borderRadius: '10px', fontSize: '14px', background: '#fafafa', border: '1px solid #efefef', width: '140px' }}
+                >
+                  <option value="texte">Texte</option>
+                  <option value="image">Image</option>
+                  <option value="video">Vidéo</option>
+                  <option value="pdf">PDF</option>
+                </select>
+                <input
+                  type="file"
+                  className="form-control"
+                  onChange={handleFileChange}
+                  accept="image/*,video/*,.pdf"
+                  style={{ borderRadius: '10px', fontSize: '14px', background: '#fafafa', border: '1px solid #efefef' }}
+                />
+              </div>
+              <button type="submit" className="w-100" style={{ background: 'linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)', color: '#fff', border: 'none', borderRadius: '999px', padding: '10px 0', fontWeight: 600, fontSize: '16px', boxShadow: 'none', marginTop: '6px' }}>
+                Publier
+              </button>
+            </form>
           </div>
 
+          {/* Posts Display */}
           <div>
             {posts.length === 0 ? (
               <p className="text-center text-muted">Aucun post disponible</p>
             ) : (
               posts.map((post) => {
-                console.log('post:', post); // Debug : vérifier la structure du post et la présence de user.photo
-                // Correction de l'URL de l'image/vidéo/pdf
                 let mediaUrl = post.file_url;
                 if (mediaUrl && !mediaUrl.startsWith('http')) {
                   mediaUrl = `http://localhost:8000/images/${mediaUrl.split('/').pop()}`;
                 }
+
+                const avatar = post.user?.photo
+                  ? post.user.photo.startsWith('http')
+                    ? post.user.photo
+                    : `http://localhost:8000/images/${post.user.photo.split('/').pop()}`
+                  : 'https://via.placeholder.com/40';
+
                 return (
-                  <PostCard
-                    key={post.id}
-                    id={post.id}
-                    user={{
-                      username: post.user?.username || 'Utilisateur inconnu',
-                      avatar: post.user?.photo
-                        ? (() => {
-                            const photo = post.user.photo;
-                            if (photo.startsWith('http')) return photo;
-                            // On récupère juste le nom du fichier, même si photo contient un chemin
-                            const fileName = photo.split('/').pop();
-                            return `http://localhost:8000/images/${fileName}`;
-                          })()
-                        : 'https://via.placeholder.com/40'
-                    }}
-                    content={post.content}
-                    type={post.type}
-                    location={post.location}
-                    image={mediaUrl}
-                    createdAt={post.created_at}
-                    onDelete={handleDeletePost}
-                    onEdit={handleEditPost}
-                  />
+                  <div key={post.id}>
+                    <PostCard
+                      id={post.id}
+                      user={{
+                        username: post.user?.username || 'Utilisateur inconnu',
+                        avatar
+                      }}
+                      content={post.content}
+                      type={post.type}
+                      location={post.location}
+                      image={mediaUrl}
+                      createdAt={post.created_at}
+                      comments={post.comments}
+                      onDelete={handleDeletePost}
+                      onEdit={handleEditPost}
+                    />
+                  </div>
                 );
               })
             )}

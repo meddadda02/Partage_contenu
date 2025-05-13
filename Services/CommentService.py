@@ -4,6 +4,7 @@ from Schemas.CommentSchema import CommentUpdate
 from sqlalchemy.orm import Session
 
 async def create_comment(db: Session, content: str, post_id: int, user_id: int):
+    print(f"[DEBUG] create_comment appelé avec content={content}, post_id={post_id}, user_id={user_id}")
     comment = Comment(content=content, post_id=post_id, user_id=user_id)
     db.add(comment)
     db.commit()
@@ -44,3 +45,12 @@ async def delete_comment(db: Session, comment_id: int, current_user_id: int):
     db.commit()
 
     return {"detail": "Comment successfully deleted"}
+
+async def get_comments_by_post(db: Session, post_id: int):
+    return db.query(Comment).filter(Comment.post_id == post_id).order_by(Comment.id.desc()).all()
+
+async def get_comment(db: Session, comment_id: int):
+    comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    return comment

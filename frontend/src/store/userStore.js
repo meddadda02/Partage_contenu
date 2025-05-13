@@ -7,17 +7,26 @@ export const useUserStore = create((set) => ({
 
   initUser: () => {
     try {
-      const user = localStorage.getItem('user');
+      const rawUser = localStorage.getItem('user');
       const token = localStorage.getItem('access_token');
-      if (user && token) {
+
+      // éviter parse sur "undefined"
+      if (rawUser && rawUser !== 'undefined' && token) {
+        const parsedUser = JSON.parse(rawUser);
         set({
-          user: JSON.parse(user),
+          user: parsedUser,
           token,
           isAuthenticated: true,
         });
+      } else {
+        // nettoyage en cas de valeur incorrecte
+        localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
       }
     } catch (error) {
       console.error('Error during initialization:', error);
+      localStorage.removeItem('user');
+      localStorage.removeItem('access_token');
     }
   },
 
