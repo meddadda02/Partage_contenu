@@ -18,8 +18,8 @@ async def add_comment(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     # Vérifier que le post existe
-    from models.PostModels import Post
-    post = db.query(Post).filter(Post.id == post_id).first()
+    from models.PostModels import Post as PostModel
+    post = db.query(PostModel).filter(PostModel.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     comment = await create_comment(db, content=content, post_id=post_id, user_id=user.id)

@@ -2,8 +2,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from config import get_db
-from Schemas.PostSchema import PostCreate, Post
-from Services.PostServices import create_post_svc,get_posts_by_user_svc,delete_post,update_post
+from Schemas.PostSchema import PostCreate, Post as PostSchema  # Renommé pour éviter la confusion
+from models.PostModels import Post as PostModel  # Importation explicite du modèle SQLAlchemy
+from Services.PostServices import create_post_svc, get_posts_by_user_svc, delete_post, update_post
 from Services.CommentService import get_comments_by_post, create_comment, delete_comment
 from dependencies import get_current_user
 from models.userModels import User
@@ -12,7 +13,7 @@ from models.CommentModels import Comment
 router = APIRouter()
 
 # Route pour créer un post avec fichier (image/vidéo)
-@router.post("/posts/", response_model=Post)
+@router.post("/posts/", response_model=PostSchema)
 async def create_post(
     title: str = Form(...),
     content: str = Form(None),
@@ -23,7 +24,7 @@ async def create_post(
     current_user: str = Depends(get_current_user),
 ):
     file_location = None
-    detected_type = type  # Valeur finale de type qu’on utilisera
+    detected_type = type  # Valeur finale de type qu'on utilisera
 
     if file:
         file_extension = file.filename.split(".")[-1].lower()
@@ -68,7 +69,8 @@ async def get_all_posts(
     db: Session = Depends(get_db),
     current_user: str = Depends(get_current_user),
 ):
-    posts = db.query(Post).order_by(Post.id.desc()).all()
+    # Utiliser le modèle SQLAlchemy pour la requête
+    posts = db.query(PostModel).order_by(PostModel.id.desc()).all()
     result = []
     for post in posts:
         user = db.query(User).filter(User.id == post.user_id).first()
@@ -148,8 +150,7 @@ async def remove_post(
     return await delete_post(db, post_id, current_user_id=user.id)
 
 
-
-@router.put("/posts/{post_id}", response_model=Post)
+@router.put("/posts/{post_id}", response_model=PostSchema)
 async def edit_post(
     post_id: int,
     title: str = Form(...),
@@ -206,7 +207,7 @@ async def add_comment_to_post(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     # Vérifier que le post existe
-    post = db.query(Post).filter(Post.id == post_id).first()
+    post = db.query(PostModel).filter(PostModel.id == post_id).first()  # Utiliser PostModel ici
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     comment = await create_comment(db, content=content, post_id=post_id, user_id=user.id)

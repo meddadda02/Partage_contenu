@@ -1,25 +1,29 @@
-import { useState, useEffect } from "react";
+"use client"
+
+import { useState, useEffect } from "react"
+import { FileText, Video, ImageIcon } from "lucide-react"
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     bio: "",
     password: "",
     photo: null,
-  });
-  const [posts, setPosts] = useState([]);
+  })
+  const [posts, setPosts] = useState([])
+  const [activeTab, setActiveTab] = useState("all") // "all", "images", "videos", "pdfs"
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("access_token")
 
     if (!token) {
-      setError("No access token found.");
-      setLoading(false);
-      return;
+      setError("No access token found.")
+      setLoading(false)
+      return
     }
 
     fetch("http://localhost:8000/users/me", {
@@ -28,17 +32,17 @@ const Profile = () => {
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch user data");
-        return res.json();
+        if (!res.ok) throw new Error("Failed to fetch user data")
+        return res.json()
       })
       .then((data) => {
-        setUser(data);
-        setLoading(false);
+        setUser(data)
+        setLoading(false)
       })
       .catch(() => {
-        setError("Failed to load user data.");
-        setLoading(false);
-      });
+        setError("Failed to load user data.")
+        setLoading(false)
+      })
 
     // Récupérer les posts de l'utilisateur
     fetch("http://localhost:8000/posts/me", {
@@ -47,35 +51,35 @@ const Profile = () => {
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch posts");
-        return res.json();
+        if (!res.ok) throw new Error("Failed to fetch posts")
+        return res.json()
       })
       .then((data) => {
-        console.log('POSTS DATA:', data); // Debug: affiche la réponse brute
-        setPosts(data);
+        console.log("POSTS DATA:", data) // Debug: affiche la réponse brute
+        setPosts(data)
       })
       .catch(() => {
-        setPosts([]);
-      });
-  }, []);
+        setPosts([])
+      })
+  }, [])
 
   const handleChange = (e) => {
-    const { name, value, files, type } = e.target;
+    const { name, value, files, type } = e.target
     setFormData({
       ...formData,
       [name]: type === "file" ? files[0] : value,
-    });
-  };
+    })
+  }
 
   const handleUpdate = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("access_token");
+    e.preventDefault()
+    const token = localStorage.getItem("access_token")
 
-    const data = new FormData();
-    data.append("email", formData.email);
-    data.append("bio", formData.bio);
-    data.append("New_password", formData.password);
-    if (formData.photo) data.append("photo", formData.photo);
+    const data = new FormData()
+    data.append("email", formData.email)
+    data.append("bio", formData.bio)
+    data.append("New_password", formData.password)
+    if (formData.photo) data.append("photo", formData.photo)
 
     try {
       const response = await fetch("http://localhost:8000/user/me", {
@@ -84,21 +88,21 @@ const Profile = () => {
           Authorization: `Bearer ${token}`,
         },
         body: data,
-      });
+      })
 
-      if (!response.ok) throw new Error("Failed to update user");
+      if (!response.ok) throw new Error("Failed to update user")
 
-      const result = await response.json();
-      setUser(result.user);
-      setIsEditing(false);
+      const result = await response.json()
+      setUser(result.user)
+      setIsEditing(false)
     } catch {
-      setError("Failed to update profile.");
+      setError("Failed to update profile.")
     }
-  };
+  }
 
   const handleDelete = async () => {
-    const token = localStorage.getItem("access_token");
-    if (!window.confirm("Are you sure you want to delete your account?")) return;
+    const token = localStorage.getItem("access_token")
+    if (!window.confirm("Are you sure you want to delete your account?")) return
 
     try {
       const res = await fetch("http://localhost:8000/user/me", {
@@ -106,38 +110,47 @@ const Profile = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
-      if (!res.ok) throw new Error("Failed to delete account");
+      if (!res.ok) throw new Error("Failed to delete account")
 
-      alert("Account deleted.");
-      window.location.href = "/login";
+      alert("Account deleted.")
+      window.location.href = "/login"
     } catch {
-      setError("Failed to delete account.");
+      setError("Failed to delete account.")
     }
-  };
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="error-message">{error}</div>;
-  if (!user) return <div>No user data found.</div>;
+  if (loading) return <div>Loading...</div>
+  if (error) return <div className="error-message">{error}</div>
+  if (!user) return <div>No user data found.</div>
 
-  const photoUrl = user.photo || "https://via.placeholder.com/140";
+  const photoUrl = user.photo || "https://via.placeholder.com/140"
 
-  const defaultImage = '/default-image.jpg'; // Place cette image dans public/
+  const defaultImage = "/default-image.jpg" // Place cette image dans public/
   const stats = {
-    posts: user.posts_count || 12,
+    posts: user.posts_count || posts.length || 0,
     followers: user.followers_count || 340,
     following: user.following_count || 180,
-  };
-  const photos = posts.length > 0
-    ? posts.filter(p => p.type === 'image' && p.file_url).map((post) => {
-        let mediaUrl = post.file_url;
-        if (mediaUrl && !mediaUrl.startsWith('http')) {
-          mediaUrl = `http://localhost:8000/images/${mediaUrl.split('/').pop()}`;
-        }
-        return mediaUrl || defaultImage;
-      })
-    : [];
+  }
+
+  // Préparer les médias pour l'affichage
+  const processMediaUrl = (post) => {
+    let mediaUrl = post.file_url
+    if (mediaUrl && !mediaUrl.startsWith("http")) {
+      mediaUrl = `http://localhost:8000/images/${mediaUrl.split("/").pop()}`
+    }
+    return mediaUrl || defaultImage
+  }
+
+  // Filtrer les posts selon le type sélectionné
+  const filteredPosts = posts.filter((post) => {
+    if (activeTab === "all") return post.file_url
+    if (activeTab === "images") return post.type === "image" && post.file_url
+    if (activeTab === "videos") return post.type === "video" && post.file_url
+    if (activeTab === "pdfs") return post.type === "pdf" && post.file_url
+    return false
+  })
 
   return (
     <>
@@ -246,21 +259,62 @@ const Profile = () => {
             gap: 12px;
             margin-top: 32px;
           }
-          .profile-ig-photo {
+          .profile-ig-media-item {
+            position: relative;
             width: 100%;
             aspect-ratio: 1/1;
-            object-fit: cover;
             border-radius: 10px;
             background: #eee;
             transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             filter: brightness(0.98);
+            overflow: hidden;
           }
-          .profile-ig-photo:hover {
+          .profile-ig-media-item:hover {
             transform: scale(1.04);
             box-shadow: 0 6px 24px rgba(0,0,0,0.12);
             filter: brightness(1.05);
             z-index: 2;
+          }
+          .profile-ig-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .profile-ig-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .profile-ig-pdf {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background-color: #f8f9fa;
+            color: #495057;
+            text-decoration: none;
+            padding: 20px;
+          }
+          .profile-ig-pdf-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #dc3545;
+          }
+          .profile-ig-media-type-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           .error-message {
             color: #ed4956;
@@ -313,6 +367,28 @@ const Profile = () => {
             border: 2px solid #dbdbdb;
             background: #eee;
           }
+          .profile-ig-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+          }
+          .profile-ig-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+          }
+          .profile-ig-tab.active {
+            background: #0095f6;
+            color: white;
+          }
+          .profile-ig-tab:hover:not(.active) {
+            background: #e0e0e0;
+          }
           @media (max-width: 700px) {
             .profile-ig-header {
               flex-direction: column;
@@ -350,31 +426,40 @@ const Profile = () => {
       <div className="profile-ig-container">
         <div className="profile-ig-header">
           <img
-            src={photoUrl}
+            src={photoUrl || "/placeholder.svg"}
             alt="Profile"
             className="profile-ig-img"
             onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "https://via.placeholder.com/140";
+              e.target.onerror = null
+              e.target.src = "https://via.placeholder.com/140"
             }}
           />
           <div className="profile-ig-info">
             <div className="profile-ig-username">{user.username}</div>
             <div className="profile-ig-stats">
-              <div className="profile-ig-stat"><strong>{stats.posts}</strong> posts</div>
-              <div className="profile-ig-stat"><strong>{stats.followers}</strong> followers</div>
-              <div className="profile-ig-stat"><strong>{stats.following}</strong> following</div>
+              <div className="profile-ig-stat">
+                <strong>{stats.posts}</strong> posts
+              </div>
+              <div className="profile-ig-stat">
+                <strong>{stats.followers}</strong> followers
+              </div>
+              <div className="profile-ig-stat">
+                <strong>{stats.following}</strong> following
+              </div>
             </div>
             <div className="profile-ig-bio">{user.bio || "No bio set."}</div>
-            <button className="profile-ig-edit-btn" onClick={() => {
-              setFormData({
-                email: user.email || "",
-                bio: user.bio || "",
-                password: "",
-                photo: null,
-              });
-              setIsEditing(true);
-            }}>
+            <button
+              className="profile-ig-edit-btn"
+              onClick={() => {
+                setFormData({
+                  email: user.email || "",
+                  bio: user.bio || "",
+                  password: "",
+                  photo: null,
+                })
+                setIsEditing(true)
+              }}
+            >
               Edit Profile
             </button>
             <button className="profile-ig-delete-btn" onClick={handleDelete}>
@@ -396,13 +481,7 @@ const Profile = () => {
               required
             />
             <label>Bio :</label>
-            <input
-              type="text"
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              className="input-field"
-            />
+            <input type="text" name="bio" value={formData.bio} onChange={handleChange} className="input-field" />
             <label>Nouveau mot de passe :</label>
             <input
               type="password"
@@ -422,7 +501,7 @@ const Profile = () => {
             />
             {formData.photo && (
               <img
-                src={URL.createObjectURL(formData.photo)}
+                src={URL.createObjectURL(formData.photo) || "/placeholder.svg"}
                 alt="Aperçu"
                 className="profile-ig-photo-preview"
               />
@@ -433,18 +512,102 @@ const Profile = () => {
           </form>
         )}
 
+        {/* Onglets de filtrage */}
+        <div className="profile-ig-tabs">
+          <button
+            className={`profile-ig-tab ${activeTab === "all" ? "active" : ""}`}
+            onClick={() => setActiveTab("all")}
+          >
+            Tous
+          </button>
+          <button
+            className={`profile-ig-tab ${activeTab === "images" ? "active" : ""}`}
+            onClick={() => setActiveTab("images")}
+          >
+            Images
+          </button>
+          <button
+            className={`profile-ig-tab ${activeTab === "videos" ? "active" : ""}`}
+            onClick={() => setActiveTab("videos")}
+          >
+            Vidéos
+          </button>
+          <button
+            className={`profile-ig-tab ${activeTab === "pdfs" ? "active" : ""}`}
+            onClick={() => setActiveTab("pdfs")}
+          >
+            PDFs
+          </button>
+        </div>
+
         <div className="profile-ig-photos-grid">
-          {photos.length === 0 ? (
-            <div style={{gridColumn: '1 / -1', textAlign: 'center', color: '#888'}}>Aucune photo à afficher</div>
+          {filteredPosts.length === 0 ? (
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", color: "#888" }}>Aucun contenu à afficher</div>
           ) : (
-            photos.map((url, idx) => (
-              <img key={idx} src={url} alt="post" className="profile-ig-photo" onError={e => {e.target.onerror=null; e.target.src=defaultImage;}} />
-            ))
+            filteredPosts.map((post, idx) => {
+              const mediaUrl = processMediaUrl(post)
+
+              // Afficher différents types de médias
+              if (post.type === "image") {
+                return (
+                  <div key={idx} className="profile-ig-media-item">
+                    <img
+                      src={mediaUrl || "/placeholder.svg"}
+                      alt="post"
+                      className="profile-ig-photo"
+                      onError={(e) => {
+                        e.target.onerror = null
+                        e.target.src = defaultImage
+                      }}
+                    />
+                    <div className="profile-ig-media-type-indicator">
+                      <ImageIcon size={16} />
+                    </div>
+                  </div>
+                )
+              } else if (post.type === "video") {
+                return (
+                  <div key={idx} className="profile-ig-media-item">
+                    <video
+                      src={mediaUrl}
+                      className="profile-ig-video"
+                      onError={(e) => {
+                        e.target.onerror = null
+                        e.target.style.display = "none"
+                      }}
+                      muted
+                    />
+                    <div className="profile-ig-media-type-indicator">
+                      <Video size={16} />
+                    </div>
+                  </div>
+                )
+              } else if (post.type === "pdf") {
+                return (
+                  <div key={idx} className="profile-ig-media-item">
+                    <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="profile-ig-pdf">
+                      <FileText size={40} color="#dc3545" />
+                      <span>Voir le PDF</span>
+                    </a>
+                    <div className="profile-ig-media-type-indicator">
+                      <FileText size={16} />
+                    </div>
+                  </div>
+                )
+              } else {
+                // Fallback pour les autres types
+                return (
+                  <div key={idx} className="profile-ig-media-item">
+                    <img src={defaultImage || "/placeholder.svg"} alt="post" className="profile-ig-photo" />
+                  </div>
+                )
+              }
+            })
           )}
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile

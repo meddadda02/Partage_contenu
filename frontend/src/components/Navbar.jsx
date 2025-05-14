@@ -1,9 +1,18 @@
-import { Link } from 'react-router-dom';
-import { useUserStore } from '../store/userStore';
-import { Home, User, MessageSquare, LogOut } from 'lucide-react';
+"use client"
+
+import { Link, useNavigate } from "react-router-dom"
+import { useUserStore } from "../store/userStore"
+import { Home, User, MessageSquare, LogOut } from "lucide-react"
 
 export default function Navbar() {
-  const { user, isAuthenticated, logout } = useUserStore();
+  const { user, isAuthenticated, logout } = useUserStore()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    // Rediriger vers la page de connexion après la déconnexion
+    navigate("/login")
+  }
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
@@ -34,7 +43,11 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <button className="nav-link border-0 bg-transparent text-danger" onClick={logout} style={navLinkStyle}>
+                  <button
+                    className="nav-link border-0 bg-transparent text-danger"
+                    onClick={handleLogout}
+                    style={navLinkStyle}
+                  >
                     <LogOut size={20} className="me-2" /> Logout
                   </button>
                 </li>
@@ -42,10 +55,14 @@ export default function Navbar() {
             ) : (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/login" style={navLinkStyle}>Login</Link>
+                  <Link className="nav-link" to="/login" style={navLinkStyle}>
+                    Login
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/register" style={navLinkStyle}>Register</Link>
+                  <Link className="nav-link" to="/register" style={navLinkStyle}>
+                    Register
+                  </Link>
                 </li>
               </>
             )}
@@ -53,19 +70,18 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  );
+  )
 }
 
 const navLinkStyle = {
-  fontSize: '1rem',
-  color: '#333',
-  fontWeight: '500',
-  transition: 'color 0.3s ease, transform 0.3s ease',
-};
+  fontSize: "1rem",
+  color: "#333",
+  fontWeight: "500",
+  transition: "color 0.3s ease, transform 0.3s ease",
+}
 
 const hoverEffectStyle = {
   ...navLinkStyle,
-  color: '#0095f6',
-  transform: 'scale(1.05)',
-};
-
+  color: "#0095f6",
+  transform: "scale(1.05)",
+}
