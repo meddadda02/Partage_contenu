@@ -30,7 +30,7 @@ async def create_post(
         file_extension = file.filename.split(".")[-1].lower()
         allowed_extensions = {
             "jpg": "image", "jpeg": "image", "png": "image", "gif": "image",
-            "mp4": "video", "avi": "video",
+            "mp4": "video", "avi": "video", "mov": "video",
             "pdf": "pdf"
         }
 
@@ -41,9 +41,20 @@ async def create_post(
         if not type:
             detected_type = allowed_extensions[file_extension]
 
-        file_location = f"uploads/{file.filename}"
-        with open(file_location, "wb") as f:
-            f.write(file.file.read())
+        # Gestion spécifique pour les PDFs
+        if detected_type == "pdf":
+            # Assurez-vous que le dossier uploads existe
+            import os
+            os.makedirs("uploads", exist_ok=True)
+            
+            # Enregistrer le fichier PDF
+            file_location = f"uploads/{file.filename}"
+            with open(file_location, "wb") as f:
+                f.write(file.file.read())
+        else:
+            file_location = f"uploads/{file.filename}"
+            with open(file_location, "wb") as f:
+                f.write(file.file.read())
 
     # Vérifie que type est défini si on a un fichier
     if file and not detected_type:
@@ -215,6 +226,7 @@ async def add_comment_to_post(
     return {
         'id': comment.id,
         'content': comment.content,
+        'created_at': comment.created_at.isoformat() if hasattr(comment, 'created_at') and comment.created_at else None,
         'user': {'username': comment_user.username, 'photo': comment_user.photo, 'id': comment_user.id} if comment_user else None
     }
 

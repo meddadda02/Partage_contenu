@@ -43,7 +43,7 @@ export default function Login() {
       console.log('User info:', userData);
 
       // ✅ Redirection vers une page sécurisée
-      navigate('/feed'); // Changer selon ta logique de redirection
+      navigate('/Home'); // Changer selon ta logique de redirection
     } catch (err) {
       setError(err.message || 'Login failed');
     }

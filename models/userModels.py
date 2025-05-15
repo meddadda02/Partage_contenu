@@ -18,3 +18,4 @@ class User(Base):
     comments = relationship("Comment", back_populates="user", cascade="all, delete")
     sent_messages = relationship("Message", back_populates="sender", foreign_keys="Message.sender_id")
     received_messages = relationship("Message", back_populates="receiver", foreign_keys="Message.receiver_id")
+    likes = relationship("Like", back_populates="user", cascade="all, delete")

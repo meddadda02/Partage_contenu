@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { useUserStore } from '../store/userStore';
+import { useUserStore } from "../store/userStore"
 import "./Chat.css"
 
 // Configuration de l'API - MODIFIEZ CETTE PARTIE SELON VOTRE CONFIGURATION
@@ -19,19 +19,19 @@ function Chat() {
   const [error, setError] = useState(null)
   const [editingMessage, setEditingMessage] = useState(null)
   const messagesEndRef = useRef(null)
-  const { isAuthenticated, token } = useUserStore();
+  const { isAuthenticated, token } = useUserStore()
 
   // Vérification du token
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
-      return;
+      navigate("/login")
+      return
     }
     if (!token) {
-      navigate('/login');
-      return;
+      navigate("/login")
+      return
     }
-  }, [isAuthenticated, token, navigate]);
+  }, [isAuthenticated, token, navigate])
 
   // Récupérer tous les utilisateurs
   useEffect(() => {
@@ -59,25 +59,25 @@ function Chat() {
   // Récupérer tous les utilisateurs
   const fetchUsers = async () => {
     try {
-      setIsLoading(true);
+      setIsLoading(true)
       const response = await fetch(`${API_BASE_URL}/messages/users/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
       if (response.status === 401) {
-        setError('Session expirée, veuillez vous reconnecter.');
-        localStorage.removeItem('access_token');
-        navigate('/login');
-        return;
+        setError("Session expirée, veuillez vous reconnecter.")
+        localStorage.removeItem("access_token")
+        navigate("/login")
+        return
       }
-      if (!response.ok) throw new Error('Erreur HTTP: ' + response.status);
-      const data = await response.json();
-      setUsers(data);
+      if (!response.ok) throw new Error("Erreur HTTP: " + response.status)
+      const data = await response.json()
+      setUsers(data)
     } catch (err) {
-      setError(`Impossible de charger les utilisateurs: ${err.message}`);
+      setError(`Impossible de charger les utilisateurs: ${err.message}`)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -281,15 +281,14 @@ function Chat() {
     })
   }
 
-  // Formater la date des messages
+  // Formater la date des messages (affiche seulement heure:min)
   const formatDate = (dateString) => {
+    if (!dateString) return ""
     const date = new Date(dateString)
-    return date.toLocaleString([], {
+    if (isNaN(date.getTime())) return ""
+    return date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
     })
   }
 
@@ -396,9 +395,10 @@ function Chat() {
                           </div>
                         ) : (
                           <div className="message-bubble">
-                            <p>{message.content}</p>
-                            <span className="message-time">{formatDate(message.created_at)}</span>
-
+                            <p style={{ marginBottom: 2 }}>{message.content}</p>
+                            <div style={{ fontSize: "12px", color: "#888", marginTop: 0, textAlign: "right" }}>
+                              {formatDate(message.created_at)}
+                            </div>
                             {/* Options pour les messages envoyés */}
                             {message.sender_id !== selectedUser.id && (
                               <div className="message-actions">

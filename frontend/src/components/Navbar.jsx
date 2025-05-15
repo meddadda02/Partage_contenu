@@ -28,8 +28,8 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/feed" style={navLinkStyle}>
-                    <Home size={20} className="me-2" /> Feed
+                  <Link className="nav-link" to="/Home" style={navLinkStyle}>
+                    <Home size={20} className="me-2" /> Home
                   </Link>
                 </li>
                 <li className="nav-item">

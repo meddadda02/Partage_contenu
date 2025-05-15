@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import PostCard from "../components/PostCard"
 import { useUserStore } from "../store/userStore"
 
-export default function Feed() {
+export default function Home() {
   const { isAuthenticated, token } = useUserStore()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -42,7 +42,45 @@ export default function Feed() {
         if (!response.ok) throw new Error("Failed to fetch posts")
 
         const data = await response.json()
-        const sortedPosts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
+        // Récupérer les informations de like pour chaque post
+        const postsWithLikes = await Promise.all(
+          data.map(async (post) => {
+            try {
+              // Vérifier si l'utilisateur a liké ce post
+              const likeResponse = await fetch(`http://localhost:8000/posts/${post.id}/liked`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              })
+
+              // Récupérer le nombre de likes pour ce post
+              const likesCountResponse = await fetch(`http://localhost:8000/posts/${post.id}/likes`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              })
+
+              if (likeResponse.ok && likesCountResponse.ok) {
+                const { has_liked } = await likeResponse.json()
+                const likes = await likesCountResponse.json()
+
+                return {
+                  ...post,
+                  user_has_liked: has_liked,
+                  like_count: likes.length || 0,
+                }
+              }
+
+              return post
+            } catch (error) {
+              console.error(`Error fetching like info for post ${post.id}:`, error)
+              return post
+            }
+          }),
+        )
+
+        const sortedPosts = postsWithLikes.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         setPosts(sortedPosts)
       } catch (err) {
         console.error("Error fetching posts:", err)
@@ -205,13 +243,23 @@ export default function Feed() {
                   <option value="video">Vidéo</option>
                   <option value="pdf">PDF</option>
                 </select>
-                <input
-                  type="file"
-                  className="form-control"
-                  onChange={handleFileChange}
-                  accept="image/*,video/*,.pdf"
-                  style={{ borderRadius: "10px", fontSize: "14px", background: "#fafafa", border: "1px solid #efefef" }}
-                />
+                <div className="input-group">
+                  <input
+                    type="file"
+                    className="form-control"
+                    onChange={handleFileChange}
+                    accept="image/*,video/*,.pdf"
+                    style={{
+                      borderRadius: "10px",
+                      fontSize: "14px",
+                      background: "#fafafa",
+                      border: "1px solid #efefef",
+                    }}
+                  />
+                  <span className="input-group-text" style={{ fontSize: "12px", background: "#f0f0f0" }}>
+                    Images, Vidéos, PDF
+                  </span>
+                </div>
               </div>
               <button
                 type="submit"
@@ -289,6 +337,8 @@ export default function Feed() {
                       onDelete={handleDeletePost}
                       onEdit={handleEditPost}
                       onAddComment={(newComment) => handleAddComment(post.id, newComment)}
+                      likeCount={post.like_count || 0}
+                      userHasLiked={post.user_has_liked || false}
                     />
                   </div>
                 )
