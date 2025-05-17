@@ -32,6 +32,9 @@ export default function Login() {
       // ✅ Stocker le token dans le localStorage (si nécessaire pour d'autres usages)
       localStorage.setItem('access_token', access_token);
 
+      // Après avoir reçu le token et le login réussi, stocke le username dans le localStorage
+      localStorage.setItem("user", JSON.stringify({ username }));
+
       // ✅ Utiliser le token pour une requête protégée
       const userResponse = await axios.get('/users/me'); // Appel à /users/me avec le token automatique grâce à axiosInstance
 

@@ -11,6 +11,8 @@ class MessageOut(BaseModel):
     receiver_id: int
     content: str
     timestamp: datetime
+    is_deleted_by_sender: bool
+    is_deleted_by_receiver: bool
 
     class Config:
         orm_mode = True

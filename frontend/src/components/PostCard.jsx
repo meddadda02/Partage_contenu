@@ -8,6 +8,7 @@ import LikeButton from "./LikeButton"
 export default function PostCard({
   id,
   user,
+  title, // Ajout de la prop title
   content,
   type,
   location,
@@ -21,6 +22,18 @@ export default function PostCard({
   userHasLiked = false,
 }) {
   const { token, username } = useUserStore() // Ajout de username pour vérifier si l'utilisateur est propriétaire du post
+
+  // Correction : fallback si username est undefined
+  let currentUsername = username
+  if (!currentUsername) {
+    try {
+      const userData = JSON.parse(localStorage.getItem("user"))
+      if (userData && userData.username) {
+        currentUsername = userData.username
+      }
+    } catch {}
+  }
+
   const [showMenu, setShowMenu] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [editData, setEditData] = useState({
@@ -40,12 +53,14 @@ export default function PostCard({
   const [hasLiked, setHasLiked] = useState(userHasLiked)
 
   useEffect(() => {
-    if (user && username) {
-      setIsOwner(user.username === username)
+    if (user && currentUsername) {
+      setIsOwner(user.username === currentUsername)
     } else {
       setIsOwner(false)
     }
-  }, [user, username])
+    // DEBUG TEMPORAIRE : Affiche le username courant et celui du post
+    console.log('username connecté:', currentUsername, '| username du post:', user.username)
+  }, [user, currentUsername])
 
   if (!user) {
     console.error("User data is missing:", { id, user })
@@ -71,7 +86,7 @@ export default function PostCard({
 
   const openEditForm = () => {
     setEditData({
-      title: "",
+      title: title || '', // Utilise la prop title du post
       content: content || "",
       type: type || "texte",
       location: location || "",
@@ -287,13 +302,51 @@ export default function PostCard({
           </div>
         </div>
         {isOwner && (
-          <div className="d-flex gap-2">
-            <button className="btn btn-sm btn-outline-secondary" onClick={openEditForm} aria-label="Modifier">
-              Modifier
+          <div style={{ position: "relative" }}>
+            <button
+              className="btn btn-link p-0"
+              style={{ fontSize: 22, color: "#888", background: "none", border: "none" }}
+              onClick={handleMenuClick}
+              aria-label="Options"
+            >
+              &#8942;
             </button>
-            <button className="btn btn-sm btn-outline-danger" onClick={handleDelete} aria-label="Supprimer">
-              Supprimer
-            </button>
+            {showMenu && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 30,
+                  right: 0,
+                  background: "#fff",
+                  border: "1px solid #eee",
+                  borderRadius: 8,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  zIndex: 10,
+                  minWidth: 120,
+                }}
+              >
+                <button
+                  className="dropdown-item"
+                  style={{ width: "100%", textAlign: "left", padding: "8px 16px", border: "none", background: "none" }}
+                  onClick={() => {
+                    openEditForm();
+                    setShowMenu(false);
+                  }}
+                >
+                  Modifier
+                </button>
+                <button
+                  className="dropdown-item"
+                  style={{ width: "100%", textAlign: "left", padding: "8px 16px", border: "none", background: "none", color: "#d9534f" }}
+                  onClick={() => {
+                    handleDelete();
+                    setShowMenu(false);
+                  }}
+                >
+                  Supprimer
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

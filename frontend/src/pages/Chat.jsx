@@ -258,7 +258,10 @@ function Chat() {
         throw new Error(`Erreur HTTP: ${response.status} - ${responseText}`)
       }
 
-      setMessages(messages.filter((msg) => msg.id !== messageId))
+      // Après suppression, recharge la conversation pour garantir la synchro
+      if (selectedUser) {
+        fetchConversation(selectedUser.id)
+      }
     } catch (err) {
       setError(`Impossible de supprimer le message: ${err.message}`)
       console.error("Erreur:", err)
