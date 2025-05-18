@@ -169,44 +169,7 @@ const Profile = () => {
           fontFamily: "Roboto, Segoe UI, Arial, sans-serif",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 36 }}>
-          <div
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 12,
-              boxShadow: "0 2px 12px #d6249f33",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 44,
-                color: "#fff",
-                fontWeight: 700,
-                fontFamily: "Grand Hotel, cursive",
-              }}
-            >
-              S
-            </span>
-          </div>
-          <h2
-            style={{
-              fontFamily: "Grand Hotel, cursive",
-              fontSize: "2.7rem",
-              color: "#222",
-              fontWeight: 400,
-              letterSpacing: 1,
-              margin: 0,
-            }}
-          >
-            Social Emsi
-          </h2>
-        </div>
+        
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
           <img
             src={photoUrl || "/placeholder.svg"}
@@ -271,7 +234,7 @@ const Profile = () => {
             <button
               onClick={handleDelete}
               style={{
-                background: "linear-gradient(90deg, #ed4956 0%, #f56040 100%)",
+                background: "linear-gradient(90deg,rgb(207, 41, 54) 0%, #f56040 100%)",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,

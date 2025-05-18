@@ -266,7 +266,7 @@ export default function PostCard({
     <div
       className="card mb-4"
       style={{
-        maxWidth: "420px",
+        maxWidth: "700px",
         margin: "32px auto",
         borderRadius: "22px",
         border: "none",

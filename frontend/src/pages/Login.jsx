@@ -120,7 +120,7 @@ export default function Login() {
                     style={{borderRadius:16, background:'#fafafa', border:'1px solid #efefef', fontSize:16, padding:'12px 16px', marginBottom:8, boxShadow:'0 1px 4px #e0e7ef55'}}
                   />
                 </div>
-                <button type="submit" className="btn w-100" style={{background:'linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)', border:'none', fontWeight:600, fontSize:18, padding:'12px 0', borderRadius:999, boxShadow:'0 2px 8px #d6249f22', letterSpacing:1, marginTop:4}}>
+                <button type="submit" className="btn w-100" style={{background:'linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)', color:'#fff',border:'none', fontWeight:600, fontSize:18, padding:'12px 0', borderRadius:999, boxShadow:'0 2px 8px #d6249f22', letterSpacing:1, marginTop:4}}>
                   Se connecter
                 </button>
               </form>

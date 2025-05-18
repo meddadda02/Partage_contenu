@@ -173,7 +173,7 @@ export default function Home() {
 
   return (
     <MainLayout>
-      <div style={{ maxWidth: 900, width: '100%', margin: '0 auto', padding: '32px 0 48px 0' }}>
+      <div style={{ maxWidth: 800, width: '100%', margin: '0 auto', padding: '32px 0 48px 0' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 36 }}>
           <div style={{
             width: 72,
