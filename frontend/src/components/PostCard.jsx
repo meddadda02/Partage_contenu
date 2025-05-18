@@ -59,7 +59,7 @@ export default function PostCard({
       setIsOwner(false)
     }
     // DEBUG TEMPORAIRE : Affiche le username courant et celui du post
-    console.log('username connecté:', currentUsername, '| username du post:', user.username)
+    console.log("username connecté:", currentUsername, "| username du post:", user.username)
   }, [user, currentUsername])
 
   if (!user) {
@@ -86,7 +86,7 @@ export default function PostCard({
 
   const openEditForm = () => {
     setEditData({
-      title: title || '', // Utilise la prop title du post
+      title: title || "", // Utilise la prop title du post
       content: content || "",
       type: type || "texte",
       location: location || "",
@@ -266,18 +266,20 @@ export default function PostCard({
     <div
       className="card mb-4"
       style={{
-        maxWidth: "470px",
-        margin: "auto",
-        borderRadius: "16px",
-        border: "1px solid #dbdbdb",
-        boxShadow: "none",
-        background: "#fff",
+        maxWidth: "420px",
+        margin: "32px auto",
+        borderRadius: "22px",
+        border: "none",
+        boxShadow: "0 8px 32px rgba(60,60,100,0.10)",
+        background: "rgba(255,255,255,0.92)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
         position: "relative",
       }}
     >
       <div
         className="card-header bg-white d-flex align-items-center border-0 pb-0 justify-content-between"
-        style={{ borderBottom: "1px solid #efefef", borderRadius: "16px 16px 0 0", padding: "12px 16px" }}
+        style={{ borderBottom: "1px solid #efefef", borderRadius: "22px 22px 0 0", padding: "10px 18px 6px 18px" }}
       >
         <div className="d-flex align-items-center">
           <img
@@ -285,8 +287,8 @@ export default function PostCard({
             className="rounded-circle me-2"
             alt={user.username}
             style={{
-              width: "36px",
-              height: "36px",
+              width: "34px",
+              height: "34px",
               objectFit: "cover",
               border: "1.5px solid #dbdbdb",
               boxShadow: "none",
@@ -296,7 +298,7 @@ export default function PostCard({
             <strong style={{ fontSize: "15px" }}>{user.username}</strong>
             <br />
             <small className="text-muted" style={{ fontSize: "12px" }}>
-              {new Date(createdAt).toLocaleDateString()}{" "}
+              {new Date(createdAt).toLocaleDateString()} {" "}
               {new Date(createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </small>
           </div>
@@ -329,18 +331,25 @@ export default function PostCard({
                   className="dropdown-item"
                   style={{ width: "100%", textAlign: "left", padding: "8px 16px", border: "none", background: "none" }}
                   onClick={() => {
-                    openEditForm();
-                    setShowMenu(false);
+                    openEditForm()
+                    setShowMenu(false)
                   }}
                 >
                   Modifier
                 </button>
                 <button
                   className="dropdown-item"
-                  style={{ width: "100%", textAlign: "left", padding: "8px 16px", border: "none", background: "none", color: "#d9534f" }}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "8px 16px",
+                    border: "none",
+                    background: "none",
+                    color: "#d9534f",
+                  }}
                   onClick={() => {
-                    handleDelete();
-                    setShowMenu(false);
+                    handleDelete()
+                    setShowMenu(false)
                   }}
                 >
                   Supprimer
@@ -350,7 +359,6 @@ export default function PostCard({
           </div>
         )}
       </div>
-
       {showEditForm ? (
         <div className="card-body">
           <form onSubmit={handleEditSubmit}>
@@ -415,7 +423,10 @@ export default function PostCard({
         </div>
       ) : (
         <>
-          {media}
+          {/* Media modernisé */}
+          <div style={{borderRadius: '18px', overflow: 'hidden', margin: '12px 0 0 0', background: '#f8f9fa'}}>
+            {media}
+          </div>
           <div className="card-body py-2 px-3" style={{ paddingBottom: 0 }}>
             <div className="d-flex mb-2 gap-3 align-items-center" style={{ padding: "4px 0" }}>
               <LikeButton
@@ -460,19 +471,16 @@ export default function PostCard({
                 if (user.photo && !user.photo.startsWith("http")) {
                   commentAvatar = `http://localhost:8000/images/${user.photo.split("/").pop()}`
                 }
-
-                // Vérifier si l'utilisateur actuel est l'auteur du commentaire
                 const isCommentOwner = user.username === username
-
                 return (
-                  <div key={comment.id || idx} className="d-flex align-items-start mb-2" style={{ gap: "10px" }}>
+                  <div key={comment.id || idx} className="d-flex align-items-start mb-2" style={{ gap: "8px" }}>
                     <a href={`/profile/${user.id || ""}`} style={{ textDecoration: "none" }}>
                       <img
                         src={commentAvatar || "/placeholder.svg"}
                         alt="avatar"
                         style={{
-                          width: 32,
-                          height: 32,
+                          width: 28,
+                          height: 28,
                           borderRadius: "50%",
                           objectFit: "cover",
                           border: "1px solid #efefef",
@@ -482,10 +490,10 @@ export default function PostCard({
                     </a>
                     <div
                       style={{
-                        background: "#fafafa",
-                        borderRadius: "14px",
-                        padding: "8px 14px",
-                        maxWidth: "340px",
+                        background: "#f5f6fa",
+                        borderRadius: "12px",
+                        padding: "7px 12px",
+                        maxWidth: "320px",
                         width: "100%",
                       }}
                     >
@@ -493,11 +501,11 @@ export default function PostCard({
                         <div>
                           <a
                             href={`/profile/${user.id || ""}`}
-                            style={{ fontSize: "14px", fontWeight: 600, color: "#262626", textDecoration: "none" }}
+                            style={{ fontSize: "13px", fontWeight: 600, color: "#262626", textDecoration: "none" }}
                           >
                             {user.username || "Utilisateur"}
                           </a>
-                          <span style={{ fontSize: "14px", marginLeft: 6 }}>{comment.content}</span>
+                          <span style={{ fontSize: "13px", marginLeft: 6 }}>{comment.content}</span>
                         </div>
                         {isCommentOwner && (
                           <div className="d-flex gap-2">
@@ -506,14 +514,14 @@ export default function PostCard({
                               style={{ color: "#777" }}
                               onClick={() => handleDeleteComment(comment.id)}
                             >
-                              <Trash2 size={14} />
+                              <Trash2 size={13} />
                             </button>
                           </div>
                         )}
                       </div>
                       {comment.createdAt && (
                         <div>
-                          <small className="text-muted" style={{ fontSize: "12px" }}>
+                          <small className="text-muted" style={{ fontSize: "11px" }}>
                             {new Date(comment.createdAt).toLocaleDateString()}
                           </small>
                         </div>
@@ -522,21 +530,28 @@ export default function PostCard({
                   </div>
                 )
               })}
-              <form onSubmit={handleAddComment} className="d-flex align-items-center mt-2" style={{ gap: "8px" }}>
+              <form onSubmit={handleAddComment} className="d-flex align-items-center mt-2" style={{ gap: "7px" }}>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Ajouter un commentaire..."
                   value={commentInput}
                   onChange={(e) => setCommentInput(e.target.value)}
-                  style={{ borderRadius: "14px", background: "#fafafa", fontSize: "14px", border: "1px solid #efefef" }}
+                  style={{ borderRadius: "12px", background: "#f5f6fa", fontSize: "13px", border: "1px solid #efefef" }}
                   disabled={sending}
                   ref={commentInputRef}
                 />
                 <button
                   type="submit"
-                  className="btn btn-primary"
-                  style={{ borderRadius: "999px", padding: "6px 18px", fontWeight: 500 }}
+                  className="btn"
+                  style={{
+                    borderRadius: "999px",
+                    padding: "6px 16px",
+                    fontWeight: 500,
+                    background: "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
+                    color: "#fff",
+                    border: "none",
+                  }}
                   disabled={sending || !commentInput.trim()}
                 >
                   {sending ? "..." : "Envoyer"}

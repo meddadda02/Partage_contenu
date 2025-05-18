@@ -1,29 +1,36 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import AppRoutes from './router';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useUserStore } from './store/userStore';
 
-function App() {
-  const { initUser } = useUserStore();  // Ajoute l'initialisation de l'utilisateur
+function AppContent() {
+  const { initUser } = useUserStore();
+  const location = useLocation();
 
   useEffect(() => {
-    // Charger le JavaScript de Bootstrap
     import('bootstrap/dist/js/bootstrap.bundle.min.js');
-    
-    // Initialiser l'utilisateur depuis le localStorage
     initUser();
-  }, [initUser]);  // Assure que l'initUser n'est appelé qu'une seule fois
+  }, [initUser]);
+
+  // Ne pas afficher la Navbar sur /login ou /register
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register';
 
   return (
+    <div className="min-vh-100 bg-light">
+      {!hideNavbar && <Navbar />}
+      <main className="container py-4">
+        <AppRoutes />
+      </main>
+    </div>
+  );
+}
+
+function App() {
+  return (
     <Router>
-      <div className="min-vh-100 bg-light">
-        <Navbar />
-        <main className="container py-4">
-          <AppRoutes />
-        </main>
-      </div>
+      <AppContent />
     </Router>
   );
 }

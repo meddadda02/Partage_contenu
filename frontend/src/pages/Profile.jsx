@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { FileText, Video, ImageIcon } from "lucide-react"
+import MainLayout from "../components/MainLayout"
 
 const Profile = () => {
   const [user, setUser] = useState(null)
@@ -153,303 +154,98 @@ const Profile = () => {
   })
 
   return (
-    <>
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-          body, #root {
-            background: #fafafa !important;
-          }
-          .profile-ig-container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 40px 30px 30px 30px;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-            font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-          }
-          .profile-ig-header {
-            display: flex;
-            align-items: center;
-            gap: 48px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-          }
-          .profile-ig-img {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            background: #fafafa;
-          }
-          .profile-ig-info {
-            flex: 1;
-            min-width: 220px;
-          }
-          .profile-ig-username {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-            color: #262626;
-          }
-          .profile-ig-stats {
-            display: flex;
-            gap: 32px;
-            margin-bottom: 18px;
-            font-size: 1.1rem;
-          }
-          .profile-ig-stat strong {
-            font-weight: 700;
-            color: #262626;
-            font-size: 1.15rem;
-          }
-          .profile-ig-stat {
-            color: #262626;
-          }
-          .profile-ig-bio {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #444;
-          }
-          .profile-ig-edit-btn {
-            background: linear-gradient(90deg, #0095f6 60%, #0057b7 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 24px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-right: 10px;
-            font-weight: 500;
-            transition: background 0.2s, box-shadow 0.2s;
-            box-shadow: 0 2px 8px rgba(0,149,246,0.08);
-          }
-          .profile-ig-edit-btn:hover {
-            background: linear-gradient(90deg, #1877f2 60%, #0095f6 100%);
-            box-shadow: 0 4px 16px rgba(0,149,246,0.18);
-          }
-          .profile-ig-delete-btn {
-            background: linear-gradient(90deg, #ed4956 60%, #f56040 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 24px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s, box-shadow 0.2s;
-            box-shadow: 0 2px 8px rgba(237,73,86,0.08);
-          }
-          .profile-ig-delete-btn:hover {
-            background: linear-gradient(90deg, #c82333 60%, #ed4956 100%);
-            box-shadow: 0 4px 16px rgba(237,73,86,0.18);
-          }
-          .profile-ig-divider {
-            border: none;
-            border-top: 1.5px solid #dbdbdb;
-            margin: 18px 0 32px 0;
-          }
-          .profile-ig-photos-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 32px;
-          }
-          .profile-ig-media-item {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1/1;
-            border-radius: 10px;
-            background: #eee;
-            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            filter: brightness(0.98);
-            overflow: hidden;
-          }
-          .profile-ig-media-item:hover {
-            transform: scale(1.04);
-            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
-            filter: brightness(1.05);
-            z-index: 2;
-          }
-          .profile-ig-photo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          .profile-ig-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          .profile-ig-pdf {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            background-color: #f8f9fa;
-            color: #495057;
-            text-decoration: none;
-            padding: 20px;
-          }
-          .profile-ig-pdf-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #dc3545;
-          }
-          .profile-ig-media-type-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .error-message {
-            color: #ed4956;
-            text-align: center;
-          }
-          .profile-ig-edit-form {
-            background: #fafafa;
-            border-radius: 12px;
-            padding: 24px 18px 18px 18px;
-            margin-bottom: 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            max-width: 420px;
-          }
-          .profile-ig-edit-form label {
-            display: block;
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 4px;
-            margin-top: 12px;
-            font-weight: 500;
-          }
-          .profile-ig-edit-form .input-field {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1.5px solid #dbdbdb;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin-bottom: 8px;
-            background: #fff;
-            transition: border 0.2s;
-          }
-          .profile-ig-edit-form .input-field:focus {
-            border: 1.5px solid #0095f6;
-            outline: none;
-          }
-          .profile-ig-edit-form .profile-ig-edit-btn {
-            width: 100%;
-            margin: 18px 0 0 0;
-            padding: 10px 0;
-            font-size: 1.1rem;
-            border-radius: 8px;
-          }
-          .profile-ig-edit-form .profile-ig-photo-preview {
-            display: block;
-            margin: 10px auto 10px auto;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #dbdbdb;
-            background: #eee;
-          }
-          .profile-ig-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-          }
-          .profile-ig-tab {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: #f0f0f0;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-          }
-          .profile-ig-tab.active {
-            background: #0095f6;
-            color: white;
-          }
-          .profile-ig-tab:hover:not(.active) {
-            background: #e0e0e0;
-          }
-          @media (max-width: 700px) {
-            .profile-ig-header {
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 24px;
-            }
-            .profile-ig-img {
-              width: 110px;
-              height: 110px;
-            }
-            .profile-ig-username {
-              font-size: 1.5rem;
-            }
-            .profile-ig-stats {
-              gap: 18px;
-              font-size: 1rem;
-            }
-            .profile-ig-photos-grid {
-              grid-template-columns: repeat(2, 1fr);
-              gap: 8px;
-            }
-          }
-          @media (max-width: 480px) {
-            .profile-ig-container {
-              padding: 10px 2vw;
-            }
-            .profile-ig-photos-grid {
-              grid-template-columns: 1fr;
-              gap: 6px;
-            }
-          }
-        `}
-      </style>
-
-      <div className="profile-ig-container">
-        <div className="profile-ig-header">
+    <MainLayout>
+      <div
+        style={{
+          maxWidth: 650,
+          width: "100%",
+          margin: "40px auto",
+          padding: "36px 28px 28px 28px",
+          background: "rgba(255,255,255,0.92)",
+          borderRadius: 36,
+          boxShadow: "0 16px 48px rgba(60,60,100,0.13)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          fontFamily: "Roboto, Segoe UI, Arial, sans-serif",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 36 }}>
+          <div
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 12,
+              boxShadow: "0 2px 12px #d6249f33",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 44,
+                color: "#fff",
+                fontWeight: 700,
+                fontFamily: "Grand Hotel, cursive",
+              }}
+            >
+              S
+            </span>
+          </div>
+          <h2
+            style={{
+              fontFamily: "Grand Hotel, cursive",
+              fontSize: "2.7rem",
+              color: "#222",
+              fontWeight: 400,
+              letterSpacing: 1,
+              margin: 0,
+            }}
+          >
+            Social Emsi
+          </h2>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
           <img
             src={photoUrl || "/placeholder.svg"}
             alt="Profile"
-            className="profile-ig-img"
-            onError={(e) => {
-              e.target.onerror = null
-              e.target.src = "https://via.placeholder.com/140"
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "3px solid #fff",
+              boxShadow: "0 4px 16px #d6249f22",
+              marginBottom: 18,
+              background: "#fafafa",
             }}
           />
-          <div className="profile-ig-info">
-            <div className="profile-ig-username">{user.username}</div>
-            <div className="profile-ig-stats">
-              <div className="profile-ig-stat">
-                <strong>{stats.posts}</strong> posts
-              </div>
-              <div className="profile-ig-stat">
-                <strong>{stats.followers}</strong> followers
-              </div>
-              <div className="profile-ig-stat">
-                <strong>{stats.following}</strong> following
-              </div>
-            </div>
-            <div className="profile-ig-bio">{user.bio || "No bio set."}</div>
+          <div style={{ fontSize: "2.1rem", fontWeight: 700, color: "#222", marginBottom: 8 }}>{user.username}</div>
+          <div style={{ display: "flex", gap: 24, marginBottom: 10, fontSize: 15, color: "#555" }}>
+            <span>
+              <b>{stats.posts}</b> posts
+            </span>
+            <span>
+              <b>{stats.followers}</b> followers
+            </span>
+            <span>
+              <b>{stats.following}</b> following
+            </span>
+          </div>
+          <div
+            style={{
+              fontSize: 15,
+              color: "#666",
+              marginBottom: 10,
+              textAlign: "center",
+            }}
+          >
+            {user.bio || "No bio set."}
+          </div>
+          <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
             <button
-              className="profile-ig-edit-btn"
               onClick={() => {
                 setFormData({
                   email: user.email || "",
@@ -459,146 +255,322 @@ const Profile = () => {
                 })
                 setIsEditing(true)
               }}
+              style={{
+                background: "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 24px",
+                fontWeight: 500,
+                cursor: "pointer",
+                boxShadow: "0 2px 8px #d6249f22",
+              }}
             >
-              Edit Profile
+              Editer
             </button>
-            <button className="profile-ig-delete-btn" onClick={handleDelete}>
-              Delete Account
+            <button
+              onClick={handleDelete}
+              style={{
+                background: "linear-gradient(90deg, #ed4956 0%, #f56040 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 24px",
+                fontWeight: 500,
+                cursor: "pointer",
+                boxShadow: "0 2px 8px #ed495622",
+              }}
+            >
+              Supprimer
             </button>
           </div>
         </div>
-        <hr className="profile-ig-divider" />
-
         {isEditing && (
-          <form onSubmit={handleUpdate} className="profile-ig-edit-form">
-            <label>Email :</label>
+          <form
+            onSubmit={handleUpdate}
+            style={{
+              background: "#fafafa",
+              borderRadius: 14,
+              padding: "22px 16px",
+              marginBottom: 28,
+              boxShadow: "0 2px 8px #e0e7ef55",
+              maxWidth: 380,
+              margin: "0 auto",
+            }}
+          >
+            <label style={{ fontWeight: 500, color: "#555" }}>Email :</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="input-field"
               required
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1.5px solid #dbdbdb",
+                marginBottom: 8,
+                marginTop: 2,
+              }}
             />
-            <label>Bio :</label>
-            <input type="text" name="bio" value={formData.bio} onChange={handleChange} className="input-field" />
-            <label>Nouveau mot de passe :</label>
+            <label style={{ fontWeight: 500, color: "#555" }}>Bio :</label>
+            <input
+              type="text"
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1.5px solid #dbdbdb",
+                marginBottom: 8,
+                marginTop: 2,
+              }}
+            />
+            <label style={{ fontWeight: 500, color: "#555" }}>Nouveau mot de passe :</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="input-field"
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1.5px solid #dbdbdb",
+                marginBottom: 8,
+                marginTop: 2,
+              }}
             />
-            <label>Photo de profil :</label>
+            <label style={{ fontWeight: 500, color: "#555" }}>Photo de profil :</label>
             <input
               type="file"
               name="photo"
               accept="image/*"
               onChange={handleChange}
-              className="input-field"
-              style={{ marginBottom: "10px" }}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1.5px solid #dbdbdb",
+                marginBottom: 10,
+                marginTop: 2,
+              }}
             />
             {formData.photo && (
               <img
                 src={URL.createObjectURL(formData.photo) || "/placeholder.svg"}
                 alt="Aperçu"
-                className="profile-ig-photo-preview"
+                style={{
+                  display: "block",
+                  margin: "10px auto",
+                  width: 70,
+                  height: 70,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "2px solid #dbdbdb",
+                  background: "#eee",
+                }}
               />
             )}
-            <button type="submit" className="profile-ig-edit-btn">
+            <button
+              type="submit"
+              style={{
+                width: "100%",
+                margin: "18px 0 0 0",
+                padding: "10px 0",
+                fontSize: "1.1rem",
+                borderRadius: 8,
+                background: "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
+                color: "#fff",
+                border: "none",
+                fontWeight: 500,
+                cursor: "pointer",
+                boxShadow: "0 2px 8px #d6249f22",
+              }}
+            >
               Sauvegarder
             </button>
           </form>
         )}
-
-        {/* Onglets de filtrage */}
-        <div className="profile-ig-tabs">
+        <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 18 }}>
           <button
-            className={`profile-ig-tab ${activeTab === "all" ? "active" : ""}`}
+            className={`profile-ig-tab${activeTab === "all" ? " active" : ""}`}
             onClick={() => setActiveTab("all")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 20,
+              background:
+                activeTab === "all"
+                  ? "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)"
+                  : "#f0f0f0",
+              color: activeTab === "all" ? "#fff" : "#333",
+              border: "none",
+              fontWeight: 500,
+              transition: "all 0.2s",
+            }}
           >
             Tous
           </button>
           <button
-            className={`profile-ig-tab ${activeTab === "images" ? "active" : ""}`}
+            className={`profile-ig-tab${activeTab === "images" ? " active" : ""}`}
             onClick={() => setActiveTab("images")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 20,
+              background:
+                activeTab === "images"
+                  ? "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)"
+                  : "#f0f0f0",
+              color: activeTab === "images" ? "#fff" : "#333",
+              border: "none",
+              fontWeight: 500,
+              transition: "all 0.2s",
+            }}
           >
             Images
           </button>
           <button
-            className={`profile-ig-tab ${activeTab === "videos" ? "active" : ""}`}
+            className={`profile-ig-tab${activeTab === "videos" ? " active" : ""}`}
             onClick={() => setActiveTab("videos")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 20,
+              background:
+                activeTab === "videos"
+                  ? "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)"
+                  : "#f0f0f0",
+              color: activeTab === "videos" ? "#fff" : "#333",
+              border: "none",
+              fontWeight: 500,
+              transition: "all 0.2s",
+            }}
           >
             Vidéos
           </button>
           <button
-            className={`profile-ig-tab ${activeTab === "pdfs" ? "active" : ""}`}
+            className={`profile-ig-tab${activeTab === "pdfs" ? " active" : ""}`}
             onClick={() => setActiveTab("pdfs")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 20,
+              background:
+                activeTab === "pdfs"
+                  ? "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)"
+                  : "#f0f0f0",
+              color: activeTab === "pdfs" ? "#fff" : "#333",
+              border: "none",
+              fontWeight: 500,
+              transition: "all 0.2s",
+            }}
           >
             PDFs
           </button>
         </div>
-
-        <div className="profile-ig-photos-grid">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginTop: 18 }}>
           {filteredPosts.length === 0 ? (
             <div style={{ gridColumn: "1 / -1", textAlign: "center", color: "#888" }}>Aucun contenu à afficher</div>
           ) : (
             filteredPosts.map((post, idx) => {
               const mediaUrl = processMediaUrl(post)
-
-              // Afficher différents types de médias
               if (post.type === "image") {
                 return (
-                  <div key={idx} className="profile-ig-media-item">
+                  <div
+                    key={idx}
+                    style={{
+                      position: "relative",
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      background: "#eee",
+                      boxShadow: "0 2px 8px #e0e7ef55",
+                    }}
+                  >
                     <img
                       src={mediaUrl || "/placeholder.svg"}
                       alt="post"
-                      className="profile-ig-photo"
-                      onError={(e) => {
-                        e.target.onerror = null
-                        e.target.src = defaultImage
-                      }}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
-                    <div className="profile-ig-media-type-indicator">
-                      <ImageIcon size={16} />
-                    </div>
                   </div>
                 )
               } else if (post.type === "video") {
                 return (
-                  <div key={idx} className="profile-ig-media-item">
+                  <div
+                    key={idx}
+                    style={{
+                      position: "relative",
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      background: "#eee",
+                      boxShadow: "0 2px 8px #e0e7ef55",
+                    }}
+                  >
                     <video
                       src={mediaUrl}
-                      className="profile-ig-video"
-                      onError={(e) => {
-                        e.target.onerror = null
-                        e.target.style.display = "none"
-                      }}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       muted
                     />
-                    <div className="profile-ig-media-type-indicator">
-                      <Video size={16} />
-                    </div>
                   </div>
                 )
               } else if (post.type === "pdf") {
                 return (
-                  <div key={idx} className="profile-ig-media-item">
-                    <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="profile-ig-pdf">
-                      <FileText size={40} color="#dc3545" />
-                      <span>Voir le PDF</span>
+                  <div
+                    key={idx}
+                    style={{
+                      position: "relative",
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      background: "#f8f9fa",
+                      boxShadow: "0 2px 8px #e0e7ef55",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: 18,
+                    }}
+                  >
+                    <a
+                      href={mediaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#495057",
+                        textDecoration: "none",
+                        fontSize: 15,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 32,
+                          color: "#dc3545",
+                          marginBottom: 8,
+                          display: "block",
+                        }}
+                      >
+                        📄
+                      </span>
+                      Voir le PDF
                     </a>
-                    <div className="profile-ig-media-type-indicator">
-                      <FileText size={16} />
-                    </div>
                   </div>
                 )
               } else {
-                // Fallback pour les autres types
                 return (
-                  <div key={idx} className="profile-ig-media-item">
-                    <img src={defaultImage || "/placeholder.svg"} alt="post" className="profile-ig-photo" />
+                  <div
+                    key={idx}
+                    style={{
+                      position: "relative",
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      background: "#eee",
+                      boxShadow: "0 2px 8px #e0e7ef55",
+                    }}
+                  >
+                    <img
+                      src={defaultImage || "/placeholder.svg"}
+                      alt="post"
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
                   </div>
                 )
               }
@@ -606,7 +578,7 @@ const Profile = () => {
           )}
         </div>
       </div>
-    </>
+    </MainLayout>
   )
 }
 

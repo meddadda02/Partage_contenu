@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import PostCard from "../components/PostCard"
 import { useUserStore } from "../store/userStore"
+import MainLayout from "../components/MainLayout"
 
 export default function Home() {
   const { isAuthenticated, token } = useUserStore()
@@ -171,182 +172,223 @@ export default function Home() {
   }
 
   return (
-    <div className="container mt-4">
-      <div className="row justify-content-center">
-        <div className="col-md-8">
-          {/* Post Creation Form */}
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: "16px",
-              border: "1px solid #dbdbdb",
-              padding: "20px 18px 14px 18px",
-              marginBottom: "28px",
-              boxShadow: "none",
-            }}
-          >
-            <form onSubmit={handleCreatePost}>
-              <div className="mb-2">
-                <textarea
-                  className="form-control border-0"
-                  name="content"
-                  value={newPost.content}
-                  onChange={handleChange}
-                  rows="3"
-                  placeholder="Quoi de neuf ?"
-                  style={{
-                    backgroundColor: "#fafafa",
-                    borderRadius: "14px",
-                    padding: "14px",
-                    fontSize: "15px",
-                    resize: "none",
-                    boxShadow: "none",
-                  }}
-                />
-              </div>
-              <div className="mb-2 d-flex gap-2">
+    <MainLayout>
+      <div style={{ maxWidth: 900, width: '100%', margin: '0 auto', padding: '32px 0 48px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 36 }}>
+          <div style={{
+            width: 72,
+            height: 72,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10,
+            boxShadow: '0 2px 12px #d6249f33',
+          }}>
+            <span style={{ fontSize: 40, color: '#fff', fontWeight: 700, fontFamily: 'Grand Hotel, cursive' }}>S</span>
+          </div>
+          <h2 style={{ fontFamily: 'Grand Hotel, cursive', fontSize: '2.7rem', color: '#222', fontWeight: 400, letterSpacing: 1, margin: 0 }}>Social Emsi</h2>
+        </div>
+
+        {/* Post Creation Form */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: "16px",
+            border: "1px solid #dbdbdb",
+            padding: "20px 18px 14px 18px",
+            marginBottom: "28px",
+            boxShadow: "none",
+          }}
+        >
+          <form onSubmit={handleCreatePost}>
+            <div className="mb-2">
+              <textarea
+                className="form-control border-0"
+                name="content"
+                value={newPost.content}
+                onChange={handleChange}
+                rows="3"
+                placeholder="Quoi de neuf ?"
+                style={{
+                  backgroundColor: "#fafafa",
+                  borderRadius: "14px",
+                  padding: "14px",
+                  fontSize: "15px",
+                  resize: "none",
+                  boxShadow: "none",
+                }}
+              />
+            </div>
+            <div className="mb-2 d-flex gap-2">
+              <input
+                type="text"
+                className="form-control"
+                name="title"
+                value={newPost.title}
+                onChange={handleChange}
+                placeholder="Titre"
+                style={{
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  background: "#fafafa",
+                  border: "1px solid #efefef",
+                }}
+              />
+              <input
+                type="text"
+                className="form-control"
+                name="location"
+                value={newPost.location}
+                onChange={handleChange}
+                placeholder="Localisation"
+                style={{
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  background: "#fafafa",
+                  border: "1px solid #efefef",
+                }}
+              />
+            </div>
+            <div className="mb-2 d-flex gap-2 align-items-center">
+              <select
+                className="form-select"
+                name="type"
+                value={newPost.type}
+                onChange={handleChange}
+                style={{
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  background: "#fafafa",
+                  border: "1px solid #efefef",
+                  width: "140px",
+                }}
+              >
+                <option value="texte">Texte</option>
+                <option value="image">Image</option>
+                <option value="video">Vidéo</option>
+                <option value="pdf">PDF</option>
+              </select>
+              <div className="input-group">
                 <input
-                  type="text"
+                  type="file"
                   className="form-control"
-                  name="title"
-                  value={newPost.title}
-                  onChange={handleChange}
-                  placeholder="Titre"
-                  style={{ borderRadius: "10px", fontSize: "14px", background: "#fafafa", border: "1px solid #efefef" }}
-                />
-                <input
-                  type="text"
-                  className="form-control"
-                  name="location"
-                  value={newPost.location}
-                  onChange={handleChange}
-                  placeholder="Localisation"
-                  style={{ borderRadius: "10px", fontSize: "14px", background: "#fafafa", border: "1px solid #efefef" }}
-                />
-              </div>
-              <div className="mb-2 d-flex gap-2 align-items-center">
-                <select
-                  className="form-select"
-                  name="type"
-                  value={newPost.type}
-                  onChange={handleChange}
+                  onChange={handleFileChange}
+                  accept="image/*,video/*,.pdf"
                   style={{
                     borderRadius: "10px",
                     fontSize: "14px",
                     background: "#fafafa",
                     border: "1px solid #efefef",
-                    width: "140px",
                   }}
-                >
-                  <option value="texte">Texte</option>
-                  <option value="image">Image</option>
-                  <option value="video">Vidéo</option>
-                  <option value="pdf">PDF</option>
-                </select>
-                <div className="input-group">
-                  <input
-                    type="file"
-                    className="form-control"
-                    onChange={handleFileChange}
-                    accept="image/*,video/*,.pdf"
-                    style={{
-                      borderRadius: "10px",
-                      fontSize: "14px",
-                      background: "#fafafa",
-                      border: "1px solid #efefef",
-                    }}
-                  />
-                  <span className="input-group-text" style={{ fontSize: "12px", background: "#f0f0f0" }}>
-                    Images, Vidéos, PDF
-                  </span>
-                </div>
+                />
+                <span className="input-group-text" style={{ fontSize: "12px", background: "#f0f0f0" }}>
+                  Images, Vidéos, PDF
+                </span>
               </div>
-              <button
-                type="submit"
-                className="w-100"
-                style={{
-                  background: "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "999px",
-                  padding: "10px 0",
-                  fontWeight: 600,
-                  fontSize: "16px",
-                  boxShadow: "none",
-                  marginTop: "6px",
-                }}
-              >
-                Publier
-              </button>
-            </form>
-          </div>
-
-          {/* Toggle View Mode */}
-          <div className="d-flex justify-content-center mb-4">
-            <div className="btn-group" role="group" aria-label="Mode d'affichage">
-              <button
-                type="button"
-                className={`btn ${viewMode === "all" ? "btn-primary" : "btn-outline-primary"}`}
-                onClick={() => setViewMode("all")}
-              >
-                Tous les posts
-              </button>
-              <button
-                type="button"
-                className={`btn ${viewMode === "mine" ? "btn-primary" : "btn-outline-primary"}`}
-                onClick={() => setViewMode("mine")}
-              >
-                Mes posts
-              </button>
             </div>
-          </div>
+            <button
+              type="submit"
+              className="w-100"
+              style={{
+                background: "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "999px",
+                padding: "10px 0",
+                fontWeight: 600,
+                fontSize: "16px",
+                boxShadow: "0 2px 8px rgba(214, 36, 159, 0.2)",
+                marginTop: "6px",
+              }}
+            >
+              Publier
+            </button>
+          </form>
+        </div>
 
-          {/* Posts Display */}
-          <div>
-            {posts.length === 0 ? (
-              <p className="text-center text-muted">
-                {viewMode === "all" ? "Aucun post disponible" : "Vous n'avez pas encore publié de post"}
-              </p>
-            ) : (
-              posts.map((post) => {
-                let mediaUrl = post.file_url
-                if (mediaUrl && !mediaUrl.startsWith("http")) {
-                  mediaUrl = `http://localhost:8000/images/${mediaUrl.split("/").pop()}`
-                }
-
-                const avatar = post.user?.photo
-                  ? post.user.photo.startsWith("http")
-                    ? post.user.photo
-                    : `http://localhost:8000/images/${post.user.photo.split("/").pop()}`
-                  : "https://via.placeholder.com/40"
-
-                return (
-                  <div key={post.id}>
-                    <PostCard
-                      id={post.id}
-                      user={{
-                        username: post.user?.username || "Utilisateur inconnu",
-                        avatar,
-                      }}
-                      content={post.content}
-                      type={post.type}
-                      location={post.location}
-                      image={mediaUrl}
-                      createdAt={post.created_at}
-                      comments={post.comments}
-                      onDelete={handleDeletePost}
-                      onEdit={handleEditPost}
-                      onAddComment={(newComment) => handleAddComment(post.id, newComment)}
-                      likeCount={post.like_count || 0}
-                      userHasLiked={post.user_has_liked || false}
-                    />
-                  </div>
-                )
-              })
-            )}
+        {/* Toggle View Mode */}
+        <div className="d-flex justify-content-center mb-4">
+          <div className="btn-group" role="group" aria-label="Mode d'affichage">
+            <button
+              type="button"
+              className={`btn`}
+              onClick={() => setViewMode("all")}
+              style={{
+                background:
+                  viewMode === "all" ? "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)" : "#fff",
+                color: viewMode === "all" ? "#fff" : "#333",
+                border: "1px solid #efefef",
+                borderRadius: "8px 0 0 8px",
+                fontWeight: 500,
+              }}
+            >
+              Tous les posts
+            </button>
+            <button
+              type="button"
+              className={`btn`}
+              onClick={() => setViewMode("mine")}
+              style={{
+                background:
+                  viewMode === "mine" ? "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)" : "#fff",
+                color: viewMode === "mine" ? "#fff" : "#333",
+                border: "1px solid #efefef",
+                borderRadius: "0 8px 8px 0",
+                fontWeight: 500,
+              }}
+            >
+              Mes posts
+            </button>
           </div>
         </div>
+
+        {/* Posts Display */}
+        <div>
+          {posts.length === 0 ? (
+            <p className="text-center text-muted">
+              {viewMode === "all" ? "Aucun post disponible" : "Vous n'avez pas encore publié de post"}
+            </p>
+          ) : (
+            posts.map((post) => {
+              let mediaUrl = post.file_url
+              if (mediaUrl && !mediaUrl.startsWith("http")) {
+                mediaUrl = `http://localhost:8000/images/${mediaUrl.split("/").pop()}`
+              }
+
+              const avatar = post.user?.photo
+                ? post.user.photo.startsWith("http")
+                  ? post.user.photo
+                  : `http://localhost:8000/images/${post.user.photo.split("/").pop()}`
+                : "https://via.placeholder.com/40"
+
+              return (
+                <div key={post.id}>
+                  <PostCard
+                    id={post.id}
+                    user={{
+                      username: post.user?.username || "Utilisateur inconnu",
+                      avatar,
+                    }}
+                    content={post.content}
+                    type={post.type}
+                    location={post.location}
+                    image={mediaUrl}
+                    createdAt={post.created_at}
+                    comments={post.comments}
+                    onDelete={handleDeletePost}
+                    onEdit={handleEditPost}
+                    onAddComment={(newComment) => handleAddComment(post.id, newComment)}
+                    likeCount={post.like_count || 0}
+                    userHasLiked={post.user_has_liked || false}
+                  />
+                </div>
+              )
+            })
+          )}
+        </div>
       </div>
-    </div>
+    </MainLayout>
   )
 }

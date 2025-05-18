@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { useUserStore } from "../store/userStore"
 import "./Chat.css"
+import MainLayout from "../components/MainLayout"
 
 // Configuration de l'API - MODIFIEZ CETTE PARTIE SELON VOTRE CONFIGURATION
 const API_BASE_URL = "http://localhost:8000" // Remplacez par l'URL de votre API FastAPI
@@ -301,167 +302,199 @@ function Chat() {
   }
 
   return (
-    <div className="chat-container">
-      {/* Barre latérale avec la liste des utilisateurs */}
-      <div className="users-sidebar">
-        <div className="sidebar-header">
-          <h2>Messages</h2>
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Rechercher un utilisateur..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <span className="search-icon">🔍</span>
+    <MainLayout>
+      <div className="chat-container" style={{maxWidth:1100, width:'100%', margin:'40px auto', borderRadius:32, boxShadow:'0 16px 48px rgba(60,60,100,0.13)', background:'rgba(255,255,255,0.92)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', minHeight:600, display:'flex', overflow:'hidden'}}>
+        {/* Barre latérale avec la liste des utilisateurs */}
+        <div className="users-sidebar">
+          <div className="sidebar-header">
+            <h2>Messages</h2>
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Rechercher un utilisateur..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <span className="search-icon">🔍</span>
+            </div>
+          </div>
+
+          <div className="users-list">
+            {isLoading && !users.length ? (
+              <div className="loading-indicator">Chargement...</div>
+            ) : (
+              <>
+                {users.length === 0 ? (
+                  <div className="no-results">Aucun utilisateur trouvé</div>
+                ) : (
+                  users.map((user) => (
+                    <div
+                      key={user.id}
+                      className={`user-item ${selectedUser?.id === user.id ? "active" : ""}`}
+                      onClick={() => handleSelectUser(user)}
+                    >
+                      <div className="user-avatar">
+                        {user.avatar ? (
+                          <img src={user.avatar || "/placeholder.svg"} alt={user.username} />
+                        ) : (
+                          <div className="avatar-placeholder">{getInitials(user.username)}</div>
+                        )}
+                      </div>
+                      <div className="user-info">
+                        <span className="username">{user.username}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </>
+            )}
           </div>
         </div>
 
-        <div className="users-list">
-          {isLoading && !users.length ? (
-            <div className="loading-indicator">Chargement...</div>
-          ) : (
+        {/* Zone principale de conversation */}
+        <div
+          className="conversation-area"
+          style={{
+            background: "rgba(255,255,255,0.85)",
+            borderRadius: 28,
+            boxShadow: "0 12px 40px rgba(60,60,100,0.13)",
+            margin: "32px 0",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            padding: 0,
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+          }}
+        >
+          {selectedUser ? (
             <>
-              {users.length === 0 ? (
-                <div className="no-results">Aucun utilisateur trouvé</div>
-              ) : (
-                users.map((user) => (
-                  <div
-                    key={user.id}
-                    className={`user-item ${selectedUser?.id === user.id ? "active" : ""}`}
-                    onClick={() => handleSelectUser(user)}
-                  >
-                    <div className="user-avatar">
-                      {user.avatar ? (
-                        <img src={user.avatar || "/placeholder.svg"} alt={user.username} />
-                      ) : (
-                        <div className="avatar-placeholder">{getInitials(user.username)}</div>
-                      )}
-                    </div>
-                    <div className="user-info">
-                      <span className="username">{user.username}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </>
-          )}
-        </div>
-      </div>
+              <div className="conversation-header">
+                <div className="user-avatar">
+                  {selectedUser.avatar ? (
+                    <img src={selectedUser.avatar || "/placeholder.svg"} alt={selectedUser.username} />
+                  ) : (
+                    <div className="avatar-placeholder">{getInitials(selectedUser.username)}</div>
+                  )}
+                </div>
+                <div className="user-info">
+                  <span className="username">{selectedUser.username}</span>
+                </div>
+              </div>
 
-      {/* Zone principale de conversation */}
-      <div className="conversation-area">
-        {selectedUser ? (
-          <>
-            <div className="conversation-header">
-              <div className="user-avatar">
-                {selectedUser.avatar ? (
-                  <img src={selectedUser.avatar || "/placeholder.svg"} alt={selectedUser.username} />
+              <div className="messages-container">
+                {isLoading && !messages.length ? (
+                  <div className="loading-indicator">Chargement des messages...</div>
                 ) : (
-                  <div className="avatar-placeholder">{getInitials(selectedUser.username)}</div>
+                  <>
+                    {messages.length === 0 ? (
+                      <div className="no-messages">Aucun message. Commencez la conversation !</div>
+                    ) : (
+                      messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`message ${message.sender_id === selectedUser.id ? "received" : "sent"}`}
+                        >
+                          {editingMessage?.id === message.id ? (
+                            <div className="edit-message-form">
+                              <input
+                                type="text"
+                                value={editingMessage.content}
+                                onChange={(e) =>
+                                  setEditingMessage({
+                                    ...editingMessage,
+                                    content: e.target.value,
+                                  })
+                                }
+                              />
+                              <div className="edit-actions">
+                                <button onClick={updateMessage}>Enregistrer</button>
+                                <button onClick={() => setEditingMessage(null)}>Annuler</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="message-bubble">
+                              <p style={{ marginBottom: 2 }}>{message.content}</p>
+                              <div style={{ fontSize: "12px", color: "#888", marginTop: 0, textAlign: "right" }}>
+                                {formatDate(message.created_at)}
+                              </div>
+                              {/* Options pour les messages envoyés */}
+                              {message.sender_id !== selectedUser.id && (
+                                <div className="message-actions">
+                                  <button className="edit-button" onClick={() => startEditMessage(message)}>
+                                    ✏️
+                                  </button>
+                                  <button
+                                    className="delete-button"
+                                    onClick={() => {
+                                      if (window.confirm("Voulez-vous vraiment supprimer ce message ?")) {
+                                        deleteMessage(message.id)
+                                      }
+                                    }}
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                    <div ref={messagesEndRef} />
+                  </>
                 )}
               </div>
-              <div className="user-info">
-                <span className="username">{selectedUser.username}</span>
+
+              <form className="message-input-form" onSubmit={sendMessage}>
+                <input
+                  type="text"
+                  placeholder="Écrivez votre message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || !newMessage.trim()}
+                  className="send-button"
+                  style={{
+                    background: "linear-gradient(90deg, #fd5949 0%, #d6249f 60%, #285AEB 100%)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "20px",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    transition: "opacity 0.2s",
+                    padding: "0 20px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  Envoyer
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="no-conversation-selected">
+              <div className="placeholder-message">
+                <h3>Sélectionnez une conversation</h3>
+                <p>Choisissez un utilisateur pour commencer à discuter</p>
               </div>
             </div>
+          )}
+        </div>
 
-            <div className="messages-container">
-              {isLoading && !messages.length ? (
-                <div className="loading-indicator">Chargement des messages...</div>
-              ) : (
-                <>
-                  {messages.length === 0 ? (
-                    <div className="no-messages">Aucun message. Commencez la conversation !</div>
-                  ) : (
-                    messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`message ${message.sender_id === selectedUser.id ? "received" : "sent"}`}
-                      >
-                        {editingMessage?.id === message.id ? (
-                          <div className="edit-message-form">
-                            <input
-                              type="text"
-                              value={editingMessage.content}
-                              onChange={(e) =>
-                                setEditingMessage({
-                                  ...editingMessage,
-                                  content: e.target.value,
-                                })
-                              }
-                            />
-                            <div className="edit-actions">
-                              <button onClick={updateMessage}>Enregistrer</button>
-                              <button onClick={() => setEditingMessage(null)}>Annuler</button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="message-bubble">
-                            <p style={{ marginBottom: 2 }}>{message.content}</p>
-                            <div style={{ fontSize: "12px", color: "#888", marginTop: 0, textAlign: "right" }}>
-                              {formatDate(message.created_at)}
-                            </div>
-                            {/* Options pour les messages envoyés */}
-                            {message.sender_id !== selectedUser.id && (
-                              <div className="message-actions">
-                                <button className="edit-button" onClick={() => startEditMessage(message)}>
-                                  ✏️
-                                </button>
-                                <button
-                                  className="delete-button"
-                                  onClick={() => {
-                                    if (window.confirm("Voulez-vous vraiment supprimer ce message ?")) {
-                                      deleteMessage(message.id)
-                                    }
-                                  }}
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                  <div ref={messagesEndRef} />
-                </>
-              )}
-            </div>
-
-            <form className="message-input-form" onSubmit={sendMessage}>
-              <input
-                type="text"
-                placeholder="Écrivez votre message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                disabled={isLoading}
-              />
-              <button type="submit" disabled={isLoading || !newMessage.trim()} className="send-button">
-                Envoyer
-              </button>
-            </form>
-          </>
-        ) : (
-          <div className="no-conversation-selected">
-            <div className="placeholder-message">
-              <h3>Sélectionnez une conversation</h3>
-              <p>Choisissez un utilisateur pour commencer à discuter</p>
-            </div>
+        {/* Notification d'erreur */}
+        {error && (
+          <div className="error-notification">
+            <p>{error}</p>
+            <button onClick={() => setError(null)}>×</button>
           </div>
         )}
       </div>
-
-      {/* Notification d'erreur */}
-      {error && (
-        <div className="error-notification">
-          <p>{error}</p>
-          <button onClick={() => setError(null)}>×</button>
-        </div>
-      )}
-    </div>
+    </MainLayout>
   )
 }
 
 export default Chat
+
