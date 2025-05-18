@@ -101,7 +101,7 @@ export default function Login() {
                     type="text"
                     className="form-control"
                     id="username"
-                    placeholder="Num. téléphone, nom de profil ou e-mail"
+                    placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
