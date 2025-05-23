@@ -8,22 +8,21 @@ import LikeButton from "./LikeButton"
 export default function PostCard({
   id,
   user,
-  title, // Ajout de la prop title
   content,
   type,
   location,
   image,
   comments,
   createdAt,
+  title, // Add title prop
   onDelete,
   onEdit,
   onAddComment,
   likeCount = 0,
   userHasLiked = false,
 }) {
-  const { token, username } = useUserStore() // Ajout de username pour vérifier si l'utilisateur est propriétaire du post
+  const { token, username } = useUserStore()
 
-  // Correction : fallback si username est undefined
   let currentUsername = username
   if (!currentUsername) {
     try {
@@ -37,7 +36,7 @@ export default function PostCard({
   const [showMenu, setShowMenu] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [editData, setEditData] = useState({
-    title: "",
+    title: "", // Initialize title
     content: "",
     type: "",
     location: "",
@@ -58,7 +57,6 @@ export default function PostCard({
     } else {
       setIsOwner(false)
     }
-    // DEBUG TEMPORAIRE : Affiche le username courant et celui du post
     console.log("username connecté:", currentUsername, "| username du post:", user.username)
   }, [user, currentUsername])
 
@@ -86,7 +84,7 @@ export default function PostCard({
 
   const openEditForm = () => {
     setEditData({
-      title: title || "", // Utilise la prop title du post
+      title: title || "", // Set title from props
       content: content || "",
       type: type || "texte",
       location: location || "",
@@ -108,7 +106,7 @@ export default function PostCard({
     e.preventDefault()
     try {
       const formData = new FormData()
-      formData.append("title", editData.title)
+      formData.append("title", editData.title) // Add title to FormData
       formData.append("content", editData.content)
       formData.append("type", editData.type)
       formData.append("location", editData.location)
@@ -120,12 +118,15 @@ export default function PostCard({
         },
         body: formData,
       })
-      if (!response.ok) throw new Error("Erreur lors de la modification")
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(JSON.stringify(errorData.detail))
+      }
       const updatedPost = await response.json()
       if (onEdit) onEdit(updatedPost)
       setShowEditForm(false)
     } catch (err) {
-      alert("Erreur lors de la modification du post.")
+      alert(`Erreur lors de la modification du post: ${err.message}`)
     }
   }
 
@@ -136,26 +137,17 @@ export default function PostCard({
     try {
       const formData = new FormData()
       formData.append("content", commentInput)
-
-      // Utiliser l'endpoint spécifique au post pour ajouter un commentaire
       const response = await fetch(`http://localhost:8000/posts/${id}/comments/`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       })
-
       if (!response.ok) throw new Error("Erreur lors de l'ajout du commentaire")
-
       const newComment = await response.json()
-
-      // Mettre à jour la liste locale des commentaires
       setCommentList((prev) => [...prev, newComment])
-
-      // Notifier le composant parent (Feed) du nouveau commentaire
       if (onAddComment) {
         onAddComment(newComment)
       }
-
       setCommentInput("")
     } catch (err) {
       console.error("Erreur lors de l'ajout du commentaire:", err)
@@ -167,7 +159,6 @@ export default function PostCard({
 
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm("Voulez-vous vraiment supprimer ce commentaire ?")) return
-
     try {
       const response = await fetch(`http://localhost:8000/comments/${commentId}`, {
         method: "DELETE",
@@ -175,10 +166,7 @@ export default function PostCard({
           Authorization: `Bearer ${token}`,
         },
       })
-
       if (!response.ok) throw new Error("Erreur lors de la suppression du commentaire")
-
-      // Mettre à jour la liste locale des commentaires
       setCommentList((prev) => prev.filter((comment) => comment.id !== commentId))
     } catch (err) {
       console.error("Erreur lors de la suppression du commentaire:", err)
@@ -195,10 +183,7 @@ export default function PostCard({
           Authorization: `Bearer ${token}`,
         },
       })
-
       if (!response.ok) throw new Error("Erreur lors de l'action de like")
-
-      // Update local state
       setHasLiked(!hasLiked)
       setLikesCount((prevCount) => (hasLiked ? prevCount - 1 : prevCount + 1))
     } catch (err) {
@@ -213,7 +198,6 @@ export default function PostCard({
     }
   }
 
-  // Affichage du média selon le type
   let media = null
   if (type === "image" && image) {
     media = (
@@ -255,7 +239,6 @@ export default function PostCard({
     )
   }
 
-  // Gestion du menu 3 points
   const handleMenuClick = (e) => {
     e.stopPropagation()
     setShowMenu((prev) => !prev)
@@ -423,8 +406,7 @@ export default function PostCard({
         </div>
       ) : (
         <>
-          {/* Media modernisé */}
-          <div style={{borderRadius: '18px', overflow: 'hidden', margin: '12px 0 0 0', background: '#f8f9fa'}}>
+          <div style={{ borderRadius: "18px", overflow: "hidden", margin: "12px 0 0 0", background: "#f8f9fa" }}>
             {media}
           </div>
           <div className="card-body py-2 px-3" style={{ paddingBottom: 0 }}>

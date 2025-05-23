@@ -19,9 +19,12 @@ function AppContent() {
 
   return (
     <div className="min-vh-100 bg-light">
+      
       {!hideNavbar && <Navbar />}
+
       <main className="container py-4">
         <AppRoutes />
+        
       </main>
     </div>
   );

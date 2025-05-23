@@ -15,7 +15,7 @@ router = APIRouter()
 # Route pour créer un post avec fichier (image/vidéo)
 @router.post("/posts/", response_model=PostSchema)
 async def create_post(
-    title: str = Form(...),
+    title: Optional[str] = Form(None),
     content: str = Form(None),
     type: str = Form(...),
     location: str = Form(None),
@@ -160,7 +160,6 @@ async def remove_post(
 
     return await delete_post(db, post_id, current_user_id=user.id)
 
-
 @router.put("/posts/{post_id}", response_model=PostSchema)
 async def edit_post(
     post_id: int,
@@ -177,21 +176,19 @@ async def edit_post(
         raise HTTPException(status_code=404, detail="User not found")
 
     file_location = None
-    detected_type = type
-
     if file:
         file_extension = file.filename.split(".")[-1].lower()
         allowed_extensions = {
             "jpg": "image", "jpeg": "image", "png": "image", "gif": "image",
-            "mp4": "video", "avi": "video",
+            "mp4": "video", "avi": "video", "mov": "video",
             "pdf": "pdf"
         }
 
         if file_extension not in allowed_extensions:
             raise HTTPException(status_code=400, detail="File type not supported")
 
-        if not type:
-            detected_type = allowed_extensions[file_extension]
+        import os
+        os.makedirs("uploads", exist_ok=True)
 
         file_location = f"uploads/{file.filename}"
         with open(file_location, "wb") as f:
@@ -200,11 +197,12 @@ async def edit_post(
     post_data = PostCreate(
         title=title,
         content=content,
-        type=detected_type,
-        location=location
+        type=type,
+        location=location,
     )
 
-    return await update_post(db, post_id=post_id, post_data=post_data, current_user_id=user.id, file_url=file_location)
+    return await update_post(db=db, post_id=post_id, post_data=post_data, current_user_id=user.id, file_url=file_location)
+
 
 
 @router.post("/posts/{post_id}/comments/")

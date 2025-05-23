@@ -7,7 +7,7 @@ from typing import Optional
 from Schemas.user_Schemas import UserOut
 
 class PostCreate(BaseModel):
-    title: str
+    title: Optional[str] = None
     content: Optional[str] = None
     type: str  # Peut être texte,image,video,pdf
     location: Optional[str] = None  # Localisation du post (facultatif)
@@ -17,7 +17,7 @@ class Post(BaseModel):
     user: UserOut  # Ajoute cette ligne
 
     id: int
-    title: str
+    title: Optional[str] = None
     content: Optional[str]
     type: str
     file_url: Optional[str]

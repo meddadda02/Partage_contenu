@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from fastapi import Request
+from models.MessageModels import Message  # adapte selon ton nom de fichier
 
 from Schemas.user_Schemas import *
 from config import get_db
@@ -131,13 +132,26 @@ def get_user_me(
 
     
 @router.delete("/user/me")
-def delete_user_connect(db:Session=Depends(get_db),current_username:str=Depends(get_current_user)):
-    user=db.query(DBUser).filter(DBUser.username==current_username).first()
+def delete_user_connect(
+    db: Session = Depends(get_db),
+    current_username: str = Depends(get_current_user)
+):
+    user = db.query(DBUser).filter(DBUser.username == current_username).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+
+    # ✅ Supprimer les messages où l'utilisateur est le sender
+    db.query(Message).filter(Message.sender_id == user.id).delete()
+
+    # ✅ Supprimer les messages où l'utilisateur est le receiver
+    db.query(Message).filter(Message.receiver_id == user.id).delete()
+
+    # 🔁 Ensuite supprimer l'utilisateur
     db.delete(user)
     db.commit()
-    return {"message": "User deleted successfully"}
+
+    return {"message": "User and related messages deleted successfully"}
+
 
 @router.put("/user/me")
 def put_user_connect(
