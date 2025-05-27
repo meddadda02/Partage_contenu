@@ -14,7 +14,6 @@ export default function PostCard({
   image,
   comments,
   createdAt,
-  title, // Add title prop
   onDelete,
   onEdit,
   onAddComment,
@@ -36,7 +35,6 @@ export default function PostCard({
   const [showMenu, setShowMenu] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [editData, setEditData] = useState({
-    title: "", // Initialize title
     content: "",
     type: "",
     location: "",
@@ -84,7 +82,6 @@ export default function PostCard({
 
   const openEditForm = () => {
     setEditData({
-      title: title || "", // Set title from props
       content: content || "",
       type: type || "texte",
       location: location || "",
@@ -106,7 +103,6 @@ export default function PostCard({
     e.preventDefault()
     try {
       const formData = new FormData()
-      formData.append("title", editData.title) // Add title to FormData
       formData.append("content", editData.content)
       formData.append("type", editData.type)
       formData.append("location", editData.location)
@@ -345,17 +341,6 @@ export default function PostCard({
       {showEditForm ? (
         <div className="card-body">
           <form onSubmit={handleEditSubmit}>
-            <div className="mb-2">
-              <input
-                type="text"
-                className="form-control"
-                name="title"
-                value={editData.title}
-                onChange={handleEditChange}
-                placeholder="Titre"
-                required
-              />
-            </div>
             <div className="mb-2">
               <textarea
                 className="form-control"

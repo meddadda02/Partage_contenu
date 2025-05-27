@@ -19,7 +19,7 @@ def get_conversation(db: Session, user_id: int, other_user_id: int):
     return db.query(Message).filter(
         (
             ((Message.sender_id == user_id) & (Message.receiver_id == other_user_id) & (~Message.is_deleted_by_sender)) |
-            ((Message.sender_id == other_user_id) & (Message.receiver_id == user_id) & (~Message.is_deleted_by_receiver))
+            ((Message.sender_id == other_user_id) & (Message.receiver_id == user_id) & (~Message.is_deleted_by_receiver))#~ signifie "non"
         )
     ).order_by(Message.timestamp.asc()).all()
 
@@ -74,12 +74,3 @@ def delete_single_message(db: Session, user_id: int, message_id: int):
     db.commit()
     return {"detail": f"Message {message_id} supprimé avec succès."}
 
-def check_and_delete_message(db: Session, message_id: int):
-    message = db.query(Message).filter_by(id=message_id).first()
-    
-    if message and message.is_deleted_by_sender and message.is_deleted_by_receiver:
-        db.delete(message)
-        db.commit()
-        return {"detail": f"Message {message_id} supprimé définitivement."}
-    else:
-        return {"detail": f"Message {message_id} n'a pas été supprimé par les deux parties."}

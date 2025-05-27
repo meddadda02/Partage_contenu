@@ -12,14 +12,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [newPost, setNewPost] = useState({
-    title: "",
     content: "",
     type: "texte",
     location: "",
     file: null,
   })
-  // État pour suivre le mode d'affichage (tous les posts ou seulement mes posts)
-  const [viewMode, setViewMode] = useState("all") // 'all' ou 'mine'
+  const [viewMode, setViewMode] = useState("all")
 
   const navigate = useNavigate()
 
@@ -32,7 +30,6 @@ export default function Home() {
     const fetchPosts = async () => {
       try {
         setLoading(true)
-        // Utiliser l'endpoint approprié selon le mode d'affichage
         const endpoint = viewMode === "all" ? "posts" : "posts/me"
         const response = await fetch(`http://localhost:8000/${endpoint}`, {
           headers: {
@@ -44,18 +41,15 @@ export default function Home() {
 
         const data = await response.json()
 
-        // Récupérer les informations de like pour chaque post
         const postsWithLikes = await Promise.all(
           data.map(async (post) => {
             try {
-              // Vérifier si l'utilisateur a liké ce post
               const likeResponse = await fetch(`http://localhost:8000/posts/${post.id}/liked`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
               })
 
-              // Récupérer le nombre de likes pour ce post
               const likesCountResponse = await fetch(`http://localhost:8000/posts/${post.id}/likes`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -116,7 +110,7 @@ export default function Home() {
 
       const createdPost = await response.json()
       setPosts((prev) => [createdPost, ...prev].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)))
-      setNewPost({ title: "", content: "", type: "texte", location: "", file: null })
+      setNewPost({ content: "", type: "texte", location: "", file: null })
     } catch {
       setError("Failed to create post")
     }
@@ -139,12 +133,10 @@ export default function Home() {
     setPosts((prev) => prev.map((p) => (p.id === updatedPost.id ? updatedPost : p)))
   }
 
-  // Fonction pour mettre à jour les commentaires d'un post
   const handleAddComment = (postId, newComment) => {
     setPosts((prev) =>
       prev.map((post) => {
         if (post.id === postId) {
-          // Ajouter le nouveau commentaire à la liste des commentaires du post
           const updatedComments = [...(post.comments || []), newComment]
           return { ...post, comments: updatedComments }
         }
@@ -191,7 +183,6 @@ export default function Home() {
           <h2 style={{ fontFamily: 'Grand Hotel, cursive', fontSize: '2.7rem', color: '#222', fontWeight: 400, letterSpacing: 1, margin: 0 }}>Social Emsi</h2>
         </div>
 
-        {/* Post Creation Form */}
         <div
           style={{
             background: "#fff",
@@ -222,20 +213,6 @@ export default function Home() {
               />
             </div>
             <div className="mb-2 d-flex gap-2">
-              <input
-                type="text"
-                className="form-control"
-                name="title"
-                value={newPost.title}
-                onChange={handleChange}
-                placeholder="Titre"
-                style={{
-                  borderRadius: "10px",
-                  fontSize: "14px",
-                  background: "#fafafa",
-                  border: "1px solid #efefef",
-                }}
-              />
               <input
                 type="text"
                 className="form-control"
@@ -308,7 +285,6 @@ export default function Home() {
           </form>
         </div>
 
-        {/* Toggle View Mode */}
         <div className="d-flex justify-content-center mb-4">
           <div className="btn-group" role="group" aria-label="Mode d'affichage">
             <button
@@ -344,7 +320,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Posts Display */}
         <div>
           {posts.length === 0 ? (
             <p className="text-center text-muted">
